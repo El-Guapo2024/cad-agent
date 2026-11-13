@@ -100,6 +100,13 @@ def test_the_whole_analysis_is_freecads(name, monkeypatch):
         modes = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")]
         assert [o.EigenmodeFrequency for o in modes] == pytest.approx(FC[name]["frequencies"], rel=rel)
         assert [max(o.DisplacementLengths) for o in modes] == pytest.approx(FC[name]["mode_max_displacements"], rel=rel)
+    if "buckling_factors" in FC[name]:                  # a buckling analysis: the static result, then each mode's
+        allres = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")]
+        assert [o.Name for o in allres] == FC[name]["result_names"]
+        assert [max(o.DisplacementLengths) for o in allres] == pytest.approx(FC[name]["mode_max_displacements"], rel=rel)
+        from cad_agent.feature_fem import buckling_factors
+        dat = os.path.splitext(fea.inp_file_name)[0] + ".dat"
+        assert buckling_factors(open(dat).read()) == pytest.approx(FC[name]["buckling_factors"], rel=rel)
     if "max_temperature" in FC[name]:                   # a thermo-mechanical analysis: its temperature field too
         assert max(res.Temperature) == pytest.approx(FC[name]["max_temperature"], rel=rel)
         assert min(res.Temperature) == pytest.approx(FC[name]["min_temperature"], rel=rel)

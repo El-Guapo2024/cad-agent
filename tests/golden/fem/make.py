@@ -27,6 +27,20 @@ def inp_text(path):
     return "".join(line for line in open(path) if "written on" not in line)
 
 
+def buckling_factors(dat):
+    """The .dat's BUCKLING FACTOR OUTPUT table (CalculiX's *BUCKLE step): each mode's factor."""
+    lines = dat.splitlines()
+    i = next(k for k, line in enumerate(lines) if "B U C K L I N G" in line)
+    out = []
+    for line in lines[i + 1:]:
+        t = line.split()
+        if len(t) == 2 and t[0].isdigit():
+            out.append(float(t[1]))
+        elif out and t:
+            break
+    return out
+
+
 def run(name):
     doc = App.newDocument(name)
     an, mesh = CASES[name](doc, App, ObjectsFem)
@@ -56,6 +70,10 @@ def run(name):
     if any(getattr(o, "EigenmodeFrequency", 0) for o in allres):     # a frequency analysis: one result per mode
         out["frequencies"] = [o.EigenmodeFrequency for o in allres]
         out["mode_max_displacements"] = [max(o.DisplacementLengths) for o in allres]
+    if any("BucklingFactor_" in o.Name for o in allres):     # a buckling analysis: the static result, then each mode
+        out["result_names"] = [o.Name for o in allres]
+        out["mode_max_displacements"] = [max(o.DisplacementLengths) for o in allres]
+        out["buckling_factors"] = buckling_factors(open(os.path.splitext(fea.inp_file_name)[0] + ".dat").read())
     if list(res.Temperature):
         out["max_temperature"], out["min_temperature"] = max(res.Temperature), min(res.Temperature)
     App.closeDocument(doc.Name)

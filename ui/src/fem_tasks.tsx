@@ -313,7 +313,9 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
           onChange={(v) => set({ gravity_direction: v.split(',').map((x) => Number(x.trim())) })} />
       </>}
       {kind === 'SolverCalculiX' && <label className="tfield"><span>Analysis type</span><QComboBox data-qf="AnalysisType" value={str('analysis_type') || 'static'}
-        onChange={(e) => set({ analysis_type: e.target.value === 'static' ? null : e.target.value })}><option value="static">static</option><option value="frequency">frequency</option><option value="thermomech">thermomech</option></QComboBox></label>}
+        onChange={(e) => set({ analysis_type: e.target.value === 'static' ? null : e.target.value })}><option value="static">static</option><option value="frequency">frequency</option><option value="thermomech">thermomech</option><option value="buckling">buckling</option></QComboBox></label>}
+      {kind === 'SolverCalculiX' && props.analysis_type === 'buckling' && <label className="tfield"><span>Buckling factors</span><input data-qf="BucklingFactors" type="number" min={1} value={Number(props.buckling_factors ?? 1)}
+        onChange={(e) => { const n = Math.round(Number(e.target.value)); if (n >= 1) set({ buckling_factors: n === 1 ? null : n }) }} /></label>}
       {kind === 'SolverCalculiX' && props.analysis_type === 'frequency' && <label className="tfield"><span>Eigenmodes</span><input data-qf="EigenmodesCount" type="number" min={1} value={Number(props.eigenmodes_count ?? 10)}
         onChange={(e) => { const n = Math.round(Number(e.target.value)); if (n >= 1) set({ eigenmodes_count: n === 10 ? null : n }) }} /></label>}
       {kind === 'EquationElasticity' && <fieldset className="tgroup"><legend>Elasticity</legend>
@@ -334,7 +336,7 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
 
 type Hist = { low: number; high: number; counts: number[] }
 type Fields = { displacement: number[]; fields: Record<string, number[]>; range: Record<string, [number, number]>; histogram?: Record<string, Hist> }
-type ResultData = Fields & { points: number[]; triangles: number[]; nodes: number; volumes: number; modes?: (Fields & { frequency: number })[] }
+type ResultData = Fields & { points: number[]; triangles: number[]; nodes: number; volumes: number; modes?: (Fields & { frequency?: number; factor?: number })[] }
 const RESULT_FIELDS: [string, string, string, string][] = [['displacement', 'Displacement magnitude', 'rb_abs_displacement', 'mm'], ['von_mises', 'von Mises stress', 'rb_vm_stress', 'MPa'],
   ['displacement_x', 'Displacement X', 'rb_x_displacement', 'mm'], ['max_principal', 'Maximum principal stress', 'rb_maxprin', 'MPa'],
   ['displacement_y', 'Displacement Y', 'rb_y_displacement', 'mm'], ['min_principal', 'Minimum principal stress', 'rb_minprin', 'MPa'],
@@ -439,7 +441,7 @@ function ResultTask({ part }: { part: string }) {
     <div className="tbuttons"><button className="qbtn" onClick={close}>Close</button></div>
     <TaskBox title="Show Result" icon={'fem-FEM_ResultShow' as IconName}>
       {data.modes && <label className="tfield"><span>Result</span><QComboBox data-qf="result_mode" value={String(mode)} onChange={(e) => setMode(Number(e.target.value))}>
-        {data.modes.map((m, i) => <option key={i} value={String(i)}>{`Mode ${i + 1}: ${m.frequency.toPrecision(6)} Hz`}</option>)}</QComboBox></label>}
+        {data.modes.map((m, i) => <option key={i} value={String(i)}>{m.factor !== undefined ? `Mode ${i + 1}: buckling factor ${m.factor.toPrecision(6)}` : `Mode ${i + 1}: ${(m.frequency ?? 0).toPrecision(6)} Hz`}</option>)}</QComboBox></label>}
       <fieldset className="tgroup"><legend>Result Type</legend>
         <Radio label="None" name="rb_none" checked={field === null} onChange={() => setField(null)} />
         {shown.map(([k, label, name]) => <Radio key={k} label={label} name={name} checked={field === k} onChange={() => setField(k)} />)}

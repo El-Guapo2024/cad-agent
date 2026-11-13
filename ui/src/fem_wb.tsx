@@ -47,6 +47,7 @@ export async function runSolver() {
       + (d.max_von_mises_mpa != null ? `max von Mises stress ${Number(d.max_von_mises_mpa).toPrecision(6)} MPa`
         : `max nodal force ${Number(d.max_nodal_force_n).toPrecision(6)} N (Z88 gives no stresses to FreeCAD's result)`)
       + (Array.isArray(d.frequencies_hz) ? `; frequencies ${(d.frequencies_hz as number[]).map((f) => f.toPrecision(6)).join(', ')} Hz` : '')
+      + (Array.isArray(d.buckling_factors) ? `; buckling factors ${(d.buckling_factors as number[]).map((f) => f.toPrecision(6)).join(', ')}` : '')
       + (d.max_temperature_k !== undefined ? `; temperature ${Number(d.min_temperature_k).toPrecision(6)} to ${Number(d.max_temperature_k).toPrecision(6)} K` : '') + ` (${d.workdir})`)
   } catch (e) { report('err', `Run Solver: ${e instanceof Error ? e.message : String(e)}`) }
 }

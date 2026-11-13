@@ -10,6 +10,7 @@
 //   results    Show Result: the values, the colours, the part hidden meanwhile, the displacement scaled
 //   thermal    tests/golden/fem's thermomech made in the panels: FreeCAD's displacement, stress and temperatures
 //   modes      tests/golden/fem's frequency made in the panels: FreeCAD's frequencies and mode shapes; Histogram, Animation
+//   buckling   tests/golden/fem's buckling made in the panels: FreeCAD's buckling factors and mode shapes
 //   elmer      tests/golden/fem_elmer's cantilever made in the panels (Solver Elmer, its Elasticity equation): FreeCAD's
 //              Elmer results (ElmerGrid and ElmerSolver on the PATH)
 //   mystran    tests/golden/fem_mystran's cantilever made in the panels (Solver Mystran): the results Mystran gave
@@ -104,6 +105,16 @@ def build(**p):
     return Part.Document(OBJECTS, p)
 `)
 writeFileSync(join(ROOT, 'pc', 'parts', 'mystran.py'), `"""mystran: a box for the Mystran analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
+writeFileSync(join(ROOT, 'pc', 'parts', 'column.py'), `"""column: a box for the buckling analysis."""
 from cad_agent import feature_part as Part
 
 PARAMS = {}
@@ -355,6 +366,32 @@ try {
   const seen = new Set([before]); for (let i = 0; i < 6; i++) { seen.add(await zs()); await sleep(40) }
   check(seen.size > 2, 'the animation moves the mesh', String(seen.size))
   await until(`document.querySelector('[data-qf="startButton"]').textContent.includes('Start Animation')`, 'the animation to end (one cycle of four steps)', 5000)
+  await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+
+  console.log('buckling')
+  // tests/golden/fem's buckling made in the panels: the solver's buckling type and three factors, 1000 N along the bar
+  await st(`cadui.setState({ featSel: ['column/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.column`, 'the column part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  await runCmd('FEM_SolverCalculiX'); await page.waitForSelector('[data-name="CalculiXccxTools"]', { timeout: 30000 })
+  await page.click(`[data-name="CalculiXccxTools"] ${qf('edit')}`); await page.waitForSelector(qf('AnalysisType'), { timeout: 15000 })
+  await pickCombo('AnalysisType', 'buckling'); await page.fill(qf('BucklingFactors'), '3'); await accept()
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1'); await accept()
+  await open('FEM_ConstraintForce', 'fem-object'); await pick('@Box.Face2'); await page.fill(qf('spinForce'), '1000 N')
+  await page.click(qf('buttonDirection')); await pick('@Box.Face2')
+  await page.click(`${qf('checkReverse')}, label:has-text("Reverse direction") input`); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const col = readFileSync(join(ROOT, 'pc', 'parts', 'column.py'), 'utf8')
+  check(col.includes('Fem.SolverCalculiX("CalculiXccxTools", analysis_type="buckling", buckling_factors=3)'), 'the part file has the buckling analysis', col)
+  const bk = FCJ.buckling, nb = await st('cadui.getState().messages.length')
+  await runCmd('FEM_SolverRun')
+  await until(`cadui.getState().messages.slice(${nb}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the buckling solve', 300000)
+  const lineb = (await st(`cadui.getState().messages.slice(${nb}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max von Mises/.test(m)) ?? ''
+  check(lineb.includes(`buckling factors ${bk.buckling_factors.map((f) => f.toPrecision(6)).join(', ')}`), 'Run Solver: FreeCAD\'s three buckling factors', lineb)
+  await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('result_mode'), { timeout: 30000 })
+  await pickCombo('result_mode', 'Mode 2'); await page.click(`${qf('rb_abs_displacement')} input`); await sleep(200)
+  check((await page.inputValue(qf('le_max'))).startsWith(bk.mode_max_displacements[2].toPrecision(6)), 'Buckling mode 2: FreeCAD\'s mode shape maximum', await page.inputValue(qf('le_max')))
   await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
 
   console.log('elmer')

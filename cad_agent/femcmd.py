@@ -30,6 +30,7 @@ def cmd_run(a) -> Result:
             + (f"  max von Mises stress {r['max_von_mises_mpa']:.6g} MPa" if r.get("max_von_mises_mpa") is not None
                else f"  max nodal force {r['max_nodal_force_n']:.6g} N (Z88 gives no stresses to FreeCAD's result)")
             + (f"\n  frequencies {', '.join(f'{f:.6g}' for f in r['frequencies_hz'])} Hz" if "frequencies_hz" in r else "")
+            + (f"\n  buckling factors {', '.join(f'{f:.6g}' for f in r['buckling_factors'])}" if "buckling_factors" in r else "")
             + (f"\n  temperature {r['min_temperature_k']:.6g} to {r['max_temperature_k']:.6g} K" if "max_temperature_k" in r else "")
             + f"\n  files in {r['workdir']}")
     return Result(OK, {"project": a.slug, "part": a.part, **r}, text, f"FEM of {a.part}")

@@ -93,9 +93,10 @@ class FemObject:
 
 
 class SolverCalculiX(FemObject):
-    """ObjectsFem.makeSolverCalculiXCcxTools: CalculiX with FreeCAD's ccxtools, a static analysis by default."""
+    """ObjectsFem.makeSolverCalculiXCcxTools: CalculiX with FreeCAD's ccxtools, a static analysis by default
+    (analysis_type "frequency" with eigenmodes_count, "buckling" with buckling_factors, or "thermomech")."""
     MAKER = "makeSolverCalculiXCcxTools"
-    DEFAULTS = {"analysis_type": None, "eigenmodes_count": None}
+    DEFAULTS = {"analysis_type": None, "eigenmodes_count": None, "buckling_factors": None}
 
 
 class SolverElmer(FemObject):
@@ -365,6 +366,11 @@ def _run(path, workdir=None, threads=None) -> dict:
         modes = [x for x in res if getattr(x, "EigenmodeFrequency", 0)]
         if modes:                        # a frequency analysis: one result per mode, the first one's values above
             out["frequencies_hz"] = [x.EigenmodeFrequency for x in modes]
+        factors = None
+        if any("BucklingFactor_" in x.Name for x in res):   # a buckling analysis: the static result, then each mode
+            dat = os.path.splitext(fea.inp_file_name)[0] + ".dat"
+            factors = buckling_factors(Path(dat).read_text(errors="replace"))
+            out["buckling_factors"] = factors
         if list(r.Temperature):          # a thermo-mechanical analysis
             out["max_temperature_k"], out["min_temperature_k"] = max(r.Temperature), min(r.Temperature)
         if workdir is not None:         # what Results > Show Result draws (cad fem result)
@@ -375,11 +381,33 @@ def _run(path, workdir=None, threads=None) -> dict:
                 s["modes"] = [{"frequency": x.EigenmodeFrequency, **{k: v for k, v in surface(m, x).items()
                                                                       if k in ("displacement", "fields", "range", "histogram")}}
                               for x in modes]
+            if s is not None and factors:  # each buckling mode's shape, after the static result
+                s["modes"] = [{"factor": f, **{k: v for k, v in surface(m, x).items()
+                                               if k in ("displacement", "fields", "range", "histogram")}}
+                              for f, x in zip(factors, res[1:])]
             if s is not None:
                 (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
         return out
     finally:
         App.closeDocument(doc.Name)
+
+
+def buckling_factors(dat):
+    """CalculiX's .dat BUCKLING FACTOR OUTPUT table (its *BUCKLE step): each mode's factor, in order. FreeCAD names each
+    mode's result by its factor (importCcxFrdResults: CCX_BucklingFactor_<factor to 2 decimals>_Results)."""
+    lines = dat.splitlines()
+    try:
+        i = next(k for k, line in enumerate(lines) if "B U C K L I N G" in line)
+    except StopIteration:
+        return []
+    out = []
+    for line in lines[i + 1:]:
+        t = line.split()
+        if len(t) == 2 and t[0].isdigit():
+            out.append(float(t[1]))
+        elif out and t:
+            break
+    return out
 
 
 def _run_elmer(an, solver, mesh, workdir):

@@ -213,6 +213,27 @@ def test_a_frequency_analysis_as_a_part_file_gives_freecads_modes(tmp_path, monk
     assert [m["range"]["displacement"][1] for m in d["modes"]] == pytest.approx(want["mode_max_displacements"], rel=1e-9)
 
 
+@pytest.mark.skipif(not (shutil.which("gmsh", path=_path()) and shutil.which("ccx", path=_path())),
+                    reason="Gmsh and CalculiX are not on the PATH (or FREECAD_BIN)")
+def test_a_buckling_analysis_as_a_part_file_gives_freecads_factors(tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % "\n".join(['    Fem.SolverCalculiX("CalculiXccxTools", analysis_type="buckling", buckling_factors=3),',
+                                   _STEEL % "", _FIX,
+                                   '    Fem.ConstraintForce("Force", [("Box", "Face2")], force="1000 N", direction=("Box", "Face2"), reversed=True),',
+                                   _MESH]))
+    work = tmp_path / "work"
+    r = Fem.run(p, workdir=work, threads=1)
+    want = FC["buckling"]
+    assert r["buckling_factors"] == pytest.approx(want["buckling_factors"], rel=1e-9)
+    assert r["max_displacement_mm"] == pytest.approx(want["max_displacement"], rel=1e-9)     # the static result's
+    inp = "".join(line for line in open(r["inp"]) if "written on" not in line)
+    assert inp.splitlines() == want["inp"].splitlines()
+    d = json.loads((work / Fem.RESULTS).read_text())
+    assert [m["factor"] for m in d["modes"]] == pytest.approx(want["buckling_factors"], rel=1e-9)
+    assert [m["range"]["displacement"][1] for m in d["modes"]] == pytest.approx(want["mode_max_displacements"][1:], rel=1e-9)
+
+
 # tests/golden/fem_elmer's cantilever and heat written as part files, with Elmer as their solver
 FC_ELMER = json.loads((Path(__file__).parent / "golden" / "fem_elmer" / "freecad.json").read_text())
 ELMER = {

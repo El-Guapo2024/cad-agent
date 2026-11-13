@@ -191,6 +191,33 @@ def frequency(doc, App, ObjectsFem):
     return an, mesh
 
 
+def buckling(doc, App, ObjectsFem):
+    """The cantilever's bar as a column fixed at x = 0, 1000 N pushing along it on its far end: its three lowest
+    buckling factors and mode shapes."""
+    box = _box(doc, 100, 10, 10)
+    doc.recompute()
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    sol = ObjectsFem.makeSolverCalculiXCcxTools(doc, "CalculiXccxTools")
+    sol.AnalysisType = "buckling"
+    sol.BucklingFactors = 3
+    an.addObject(sol)
+    an.addObject(_steel(ObjectsFem, doc))
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, "Face1")]
+    an.addObject(fix)
+    f = ObjectsFem.makeConstraintForce(doc, "Force")
+    f.References = [(box, "Face2")]
+    f.Force = "1000 N"
+    f.Direction = (box, ["Face2"])
+    f.Reversed = True
+    an.addObject(f)
+    mesh = ObjectsFem.makeMeshGmsh(doc, "Mesh")
+    mesh.Shape = box
+    mesh.CharacteristicLengthMax = "5 mm"
+    an.addObject(mesh)
+    return an, mesh
+
+
 CASES = {"cantilever": cantilever, "pressure_plate": pressure_plate, "plate_hole": plate_hole,
          "displacement_bar": displacement_bar, "self_weight": self_weight, "thermomech": thermomech,
-         "frequency": frequency}
+         "frequency": frequency, "buckling": buckling}
