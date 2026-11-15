@@ -134,7 +134,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   for the page's own edits), cam. Mechanical parity ~93%. PAUSED here by Juan (credits), with a YC demo coming.
 - Demo prep, next steps in order: (1) the TechDraw page shows no template (no frame or title block) in the page: fix;
   (2) plugin/install.sh never builds the native solvers (ui/planegcs, ui/ondsel, ui/libarea), so on a fresh install
-  every sketch fails ("the sketch solver library is not built"): build them in install.sh or ship them as wheels;
+  every sketch fails ("the sketch solver library is not built"): build them in install.sh or ship them as wheels
+  (done: plugin/natives.sh, in the background; since plugin-ocl it builds OpenCamLib too, optional, for Surface and
+  Waterline; checked 2026-11-15 from a clean copy of main: all four in about 2.5 min, the planegcs and CAM tests pass);
   (3) open the demo project straight to the 3D view, not the Start page; (4) a scripted demo flow, run until smooth,
   and a backup recording: done 2026-11-06, ui/scripts/demo.mjs (body, sketch, Pad, Pocket, Fillet, a parameter edit, a
   TechDraw page from the ISO A4 template to PDF, a CAM Job, Profile and grbl G-code; --runs=3 passed three times in a

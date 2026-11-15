@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Builds the three native solvers a plugin install needs and the wheels can't carry, from the plugin's own sources:
+# Builds the native solvers a plugin install needs and the wheels can't carry, from the plugin's own sources:
 # the Sketcher's PlaneGCS (ui/planegcs), the Assembly's OndselSolver (ui/ondsel) and the CAM workbench's libarea
-# (ui/libarea). Without them every sketch, assembly and CAM op says its solver is not built. install.sh starts this
+# (ui/libarea), then OpenCamLib (ui/opencamlib) for CAM's Surface and Waterline. Without them every sketch, assembly
+# and CAM op says its solver is not built. install.sh starts this
 # in the background once per plugin version; the output goes to $data/natives.log.
 #   natives.sh ROOT DATA VENV_PYTHON
 # Needs a C++ compiler. Eigen 5.0.0 (FreeCAD's) and pybind11 are fetched into DATA/toolchain; Boost's headers are
@@ -51,4 +52,13 @@ run() {   # NAME: one solver's build.sh native
 run planegcs
 run ondsel
 run libarea
+# OpenCamLib (ui/opencamlib), which CAM's Surface and Waterline import as `ocl`. Optional: it needs OpenMP and
+# Boost.Python's headers (boost/python.hpp), which Apple's clang and some Boost installs lack, so a failure here
+# costs those two ops (they say OpenCamLib is not built) and does not make every later session build again.
+s=$(date +%s)
+if BOOST_INCLUDE="$boost" PYTHON="$py" JOBS="${JOBS:-4}" bash "$root/ui/opencamlib/build.sh"; then
+  say "opencamlib built in $(( $(date +%s) - s )) s"
+else
+  say "opencamlib did not build (optional; CAM's Surface and Waterline need it, see above)"
+fi
 exit $rc
