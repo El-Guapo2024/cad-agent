@@ -11,6 +11,7 @@
 //   thermal    tests/golden/fem's thermomech made in the panels: FreeCAD's displacement, stress and temperatures
 //   modes      tests/golden/fem's frequency made in the panels: FreeCAD's frequencies and mode shapes; Histogram, Animation
 //   buckling   tests/golden/fem's buckling made in the panels: FreeCAD's buckling factors and mode shapes
+//   contact    tests/golden/fem's contact (two blocks, a Compound) made in the panels: the slave and master faces, FreeCAD's results
 //   elmer      tests/golden/fem_elmer's cantilever made in the panels (Solver Elmer, its Elasticity equation): FreeCAD's
 //              Elmer results (ElmerGrid and ElmerSolver on the PATH)
 //   mystran    tests/golden/fem_mystran's cantilever made in the panels (Solver Mystran): the results Mystran gave
@@ -119,6 +120,18 @@ from cad_agent import feature_part as Part
 
 PARAMS = {}
 OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
+writeFileSync(join(ROOT, 'pc', 'parts', 'blocks.py'), `"""blocks: a small block standing on a larger one, for the contact analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Low", length=40, width=20, height=10),
+           Part.Box("Up", length=20, width=20, height=10, placement=((10, 0, 10), (0, 0, 0))),
+           Part.Compound("Blocks", ["Low", "Up"])]
 
 
 def build(**p):
@@ -393,6 +406,35 @@ try {
   await pickCombo('result_mode', 'Mode 2'); await page.click(`${qf('rb_abs_displacement')} input`); await sleep(200)
   check((await page.inputValue(qf('le_max'))).startsWith(bk.mode_max_displacements[2].toPrecision(6)), 'Buckling mode 2: FreeCAD\'s mode shape maximum', await page.inputValue(qf('le_max')))
   await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+
+  console.log('contact')
+  // tests/golden/fem's contact made in the panels: the upper block's bottom as the slave face, the lower's top as the master
+  await st(`cadui.setState({ featSel: ['blocks/Blocks'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.blocks`, 'the blocks part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  await runCmd('FEM_SolverCalculiX'); await page.waitForSelector('[data-name="CalculiXccxTools"]', { timeout: 30000 })
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Blocks.Face5'); await accept()
+  await open('FEM_ConstraintPressure', 'fem-object'); await pick('@Blocks.Face12'); await page.fill(qf('if_pressure'), '10 MPa'); await accept()
+  await open('FEM_ConstraintContact', 'fem-object')
+  check(await page.inputValue(qf('spbSlope')) === '1e6 GPa/m' && await page.$(qf('spbStickSlope')) === null,
+    'Contact: FreeCAD\'s command values (1e6 GPa/m, friction off)')
+  const nc = await st('cadui.getState().messages.length')
+  await page.click(`[data-task="fem-object"] ${qf('ok')}`); await sleep(500)
+  check(await st(`cadui.getState().messages.slice(${nc}).some((m) => m.level === 'warn' && /one master face and one slave face/.test(m.text))`), 'Contact without its two faces says so')
+  await pick('@Blocks.Face11'); await pick('@Blocks.Face6')
+  check((await page.textContent(qf('slave_face'))).includes('Blocks:Face11') && (await page.textContent(qf('master_face'))).includes('Blocks:Face6'),
+    'the first face picked is the slave, the next the master')
+  await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const blk = readFileSync(join(ROOT, 'pc', 'parts', 'blocks.py'), 'utf8')
+  check(blk.includes('Fem.ConstraintContact("ConstraintContact", [("Blocks", "Face11"), ("Blocks", "Face6")]'), 'the part file has the contact pair', blk)
+  const ct = FCJ.contact, nr = await st('cadui.getState().messages.length')
+  await runCmd('FEM_SolverRun')
+  await until(`cadui.getState().messages.slice(${nr}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the contact solve', 300000)
+  const linec = (await st(`cadui.getState().messages.slice(${nr}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max von Mises/.test(m)) ?? ''
+  check(linec.includes(`${ct.nodes} nodes`) && linec.includes(ct.max_displacement.toPrecision(6)) && linec.includes(ct.max_von_mises.toPrecision(6)),
+    'Run Solver: FreeCAD\'s contact results', linec)
 
   console.log('elmer')
   // tests/golden/fem_elmer's cantilever made in the panels: Solver Elmer, its Elasticity equation with Calculate

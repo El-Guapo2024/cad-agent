@@ -234,6 +234,56 @@ def test_a_buckling_analysis_as_a_part_file_gives_freecads_factors(tmp_path, mon
     assert [m["range"]["displacement"][1] for m in d["modes"]] == pytest.approx(want["mode_max_displacements"][1:], rel=1e-9)
 
 
+CONTACT = '''"""blocks: a small steel block standing on a larger one, two solids in contact."""
+from cad_agent import feature_fem as Fem
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Low", length=40, width=20, height=10),
+           Part.Box("Up", length=20, width=20, height=10, placement=((10, 0, 10), (0, 0, 0))),
+           Part.Compound("Blocks", ["Low", "Up"])]
+
+FEM = [
+    Fem.SolverCalculiX("CalculiXccxTools"),
+    Fem.MaterialSolid("Material", material_name="Steel", youngs_modulus="210000 MPa", poisson_ratio=0.30, density="7900 kg/m^3"),
+    Fem.ConstraintFixed("Fixed", [("Blocks", "Face5")]),
+    Fem.ConstraintPressure("Pressure", [("Blocks", "Face12")], pressure="10 MPa"),
+    Fem.ConstraintContact("Contact", [("Blocks", "Face11"), ("Blocks", "Face6")], slope="1000000 GPa/m"),
+    Fem.MeshGmsh("Mesh", "Blocks", characteristic_length_max="5 mm"),
+]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+'''
+
+
+@pytest.mark.skipif(not (shutil.which("gmsh", path=_path()) and shutil.which("ccx", path=_path())),
+                    reason="Gmsh and CalculiX are not on the PATH (or FREECAD_BIN)")
+def test_a_contact_pair_as_a_part_file_gives_freecads_results(tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "blocks.py"
+    p.write_text(CONTACT)
+    r = Fem.run(p, workdir=tmp_path / "work", threads=1)
+    want = FC["contact"]
+    assert (r["nodes"], r["volumes"]) == (want["nodes"], want["volumes"])
+    inp = "".join(line for line in open(r["inp"]) if "written on" not in line)
+    assert inp.splitlines() == want["inp"].splitlines()
+    assert r["max_displacement_mm"] == pytest.approx(want["max_displacement"], rel=1e-9)
+    assert r["max_von_mises_mpa"] == pytest.approx(want["max_von_mises"], rel=1e-9)
+
+
+def test_a_contact_pair_round_trips_through_the_panels_edits():
+    from cad_agent import fem_edit as FE
+    new = FE.apply_src(CONTACT, [{"op": "add", "kind": "ConstraintContact", "name": "Contact001",
+                                  "props": {"references": [["Blocks", "Face11"], ["Blocks", "Face6"]],
+                                            "surface_behavior": "Hard", "friction": True, "friction_coefficient": 0.3}}])
+    objs = {o["name"]: o for o in FE.read_src(new)}
+    assert objs["Contact001"]["surface_behavior"] == "Hard" and objs["Contact001"]["friction_coefficient"] == 0.3
+    assert objs["Contact"]["slope"] == "1000000 GPa/m"
+    assert FE.apply_src(new, [{"op": "delete", "name": "Contact001"}]) == CONTACT
+
+
 # tests/golden/fem_elmer's cantilever and heat written as part files, with Elmer as their solver
 FC_ELMER = json.loads((Path(__file__).parent / "golden" / "fem_elmer" / "freecad.json").read_text())
 ELMER = {

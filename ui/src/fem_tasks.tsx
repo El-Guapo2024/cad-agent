@@ -4,7 +4,8 @@
 //       src/Mod/Fem/Gui/TaskFemConstraintPressure.ui, src/Mod/Fem/Gui/Resources/ui/Material.ui,
 //       src/Mod/Fem/Gui/Resources/ui/MeshGmsh.ui, src/Mod/Fem/Gui/Resources/ui/ResultShow.ui,
 //       src/Mod/Fem/Gui/TaskFemConstraintDisplacement.ui, src/Mod/Fem/Gui/TaskFemConstraintTemperature.ui,
-//       src/Mod/Fem/Gui/TaskFemConstraintInitialTemperature.ui, src/Mod/Fem/Gui/TaskFemConstraintHeatflux.ui
+//       src/Mod/Fem/Gui/TaskFemConstraintInitialTemperature.ui, src/Mod/Fem/Gui/TaskFemConstraintHeatflux.ui,
+//       src/Mod/Fem/Gui/TaskFemConstraintContact.ui (and Command.cpp's CmdFemConstraintContact for a new contact's values)
 // The FEM workbench's task panels: the analysis's objects, adding or changing a constraint, a material, a mesh, a
 // solver or an Elmer equation, each written to the part file's FEM list (`cad fem apply`, cad_agent/fem_edit.py), and Results > Show Result,
 // the last run's values on the mesh's outside as a helper in the 3D view (`cad fem result`).
@@ -24,21 +25,21 @@ export type FemObject = { name: string; kind: string; [k: string]: unknown }
 type Ref = [string, string]
 type Kind = 'ConstraintFixed' | 'ConstraintForce' | 'ConstraintPressure' | 'MaterialSolid' | 'MeshGmsh' | 'SolverCalculiX'
   | 'ConstraintDisplacement' | 'ConstraintSelfWeight' | 'ConstraintTemperature' | 'ConstraintInitialTemperature' | 'ConstraintHeatflux'
-  | 'SolverElmer' | 'SolverMystran' | 'SolverZ88' | 'EquationElasticity' | 'EquationHeat'
+  | 'SolverElmer' | 'SolverMystran' | 'SolverZ88' | 'EquationElasticity' | 'EquationHeat' | 'ConstraintContact'
 
 const TITLE: Record<Kind, string> = { ConstraintFixed: 'Fixed Boundary Condition', ConstraintForce: 'Force Load', ConstraintPressure: 'Pressure Load',
   MaterialSolid: 'Material', MeshGmsh: 'Mesh', SolverCalculiX: 'Solver CalculiX Standard', ConstraintDisplacement: 'Displacement Boundary Condition',
   ConstraintSelfWeight: 'Gravity Load', ConstraintTemperature: 'Temperature Boundary Condition', ConstraintInitialTemperature: 'Initial Temperature',
-  ConstraintHeatflux: 'Heat Flux Load', SolverElmer: 'Solver Elmer', SolverMystran: 'Solver Mystran', SolverZ88: 'Solver Z88', EquationElasticity: 'Elasticity Equation', EquationHeat: 'Heat Equation' }
+  ConstraintHeatflux: 'Heat Flux Load', SolverElmer: 'Solver Elmer', SolverMystran: 'Solver Mystran', SolverZ88: 'Solver Z88', EquationElasticity: 'Elasticity Equation', EquationHeat: 'Heat Equation', ConstraintContact: 'Contact Constraint' }
 // FreeCAD's names for new objects (ObjectsFem's defaults; the commands' labels)
 export const BASE_NAME: Record<Kind, string> = { ConstraintFixed: 'ConstraintFixed', ConstraintForce: 'ConstraintForce', ConstraintPressure: 'ConstraintPressure',
   MaterialSolid: 'MaterialSolid', MeshGmsh: 'FEMMeshGmsh', SolverCalculiX: 'CalculiXccxTools', ConstraintDisplacement: 'ConstraintDisplacement',
   ConstraintSelfWeight: 'ConstraintSelfWeight', ConstraintTemperature: 'ConstraintTemperature', ConstraintInitialTemperature: 'ConstraintInitialTemperature',
-  ConstraintHeatflux: 'ConstraintHeatflux', SolverElmer: 'SolverElmer', SolverMystran: 'SolverMystran', SolverZ88: 'SolverZ88', EquationElasticity: 'Elasticity', EquationHeat: 'Heat' }
+  ConstraintHeatflux: 'ConstraintHeatflux', SolverElmer: 'SolverElmer', SolverMystran: 'SolverMystran', SolverZ88: 'SolverZ88', EquationElasticity: 'Elasticity', EquationHeat: 'Heat', ConstraintContact: 'ConstraintContact' }
 const ICON: Record<Kind, string> = { ConstraintFixed: 'FEM_ConstraintFixed', ConstraintForce: 'FEM_ConstraintForce', ConstraintPressure: 'FEM_ConstraintPressure',
   MaterialSolid: 'FEM_MaterialSolid', MeshGmsh: 'FEM_MeshGmshFromShape', SolverCalculiX: 'FEM_SolverStandard', ConstraintDisplacement: 'FEM_ConstraintDisplacement',
   ConstraintSelfWeight: 'FEM_ConstraintSelfWeight', ConstraintTemperature: 'FEM_ConstraintTemperature', ConstraintInitialTemperature: 'FEM_ConstraintInitialTemperature',
-  ConstraintHeatflux: 'FEM_ConstraintHeatflux', SolverElmer: 'FEM_SolverElmer', SolverMystran: 'FEM_SolverMystran', SolverZ88: 'FEM_SolverZ88', EquationElasticity: 'FEM_EquationElasticity', EquationHeat: 'FEM_EquationHeat' }
+  ConstraintHeatflux: 'FEM_ConstraintHeatflux', SolverElmer: 'FEM_SolverElmer', SolverMystran: 'FEM_SolverMystran', SolverZ88: 'FEM_SolverZ88', EquationElasticity: 'FEM_EquationElasticity', EquationHeat: 'FEM_EquationHeat', ConstraintContact: 'FEM_ConstraintContact' }
 const icon = (k: Kind) => `fem-${ICON[k]}` as IconName
 const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   ConstraintFixed: { references: [] },
@@ -58,13 +59,16 @@ const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   SolverZ88: { solver_type: null },
   EquationElasticity: { solver: null, calculate_stresses: null, calculate_principal: null, calculate_strains: null },
   EquationHeat: { solver: null },
+  // what FreeCAD's Contact command sets on the new object (Command.cpp, CmdFemConstraintContact)
+  ConstraintContact: { references: [], slope: '1e6 GPa/m', adjust: '0 mm', friction: false, friction_coefficient: 0, stick_slope: '1e4 GPa/m' },
 }
 // what the Elasticity equation's flags are when left as made (equations/elasticity.py)
 const ELASTICITY_FLAGS: [string, string, boolean][] = [['calculate_stresses', 'CalculateStresses', false], ['calculate_principal', 'CalculatePrincipal', true],
   ['calculate_strains', 'CalculateStrains', false]]
 // the kinds of element each panel's lbl_info names
 const ELEMENTS: Partial<Record<Kind, string[]>> = { ConstraintFixed: ['Vertex', 'Edge', 'Face'], ConstraintForce: ['Vertex', 'Edge', 'Face'], ConstraintPressure: ['Edge', 'Face'],
-  ConstraintDisplacement: ['Vertex', 'Edge', 'Face'], ConstraintTemperature: ['Vertex', 'Edge', 'Face'], ConstraintHeatflux: ['Edge', 'Face'] }
+  ConstraintDisplacement: ['Vertex', 'Edge', 'Face'], ConstraintTemperature: ['Vertex', 'Edge', 'Face'], ConstraintHeatflux: ['Edge', 'Face'],
+  ConstraintContact: ['Edge', 'Face'] }
 const QUANTITY = /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?\s*[A-Za-zµ][A-Za-zµ0-9^/*·]*$/i
 
 async function listObjects(part: string): Promise<FemObject[] | null> {
@@ -181,6 +185,7 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
   const [props, setProps] = useState<Record<string, unknown> | null>(kind0 ? DEFAULTS[kind0] : null)
   const [kind, setKind] = useState<Kind | undefined>(kind0)
   const [direction, setDirection] = useState(false)     // the Direction button waits for an edge or a face
+  const [slot, setSlot] = useState<0 | 1>(0)            // a contact's pick goes to its slave (0) or its master (1) face
   const [start] = useState<{ current: Record<string, unknown> | null }>({ current: null })
   useEffect(() => {
     if (!edit) return
@@ -201,6 +206,15 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
   const picksRef = useRef<(p: Ref) => void>(() => {})
   picksRef.current = ([o, el]) => {
     if (direction) { set({ direction: [o, el] }); setDirection(false); return }
+    if (kind === 'ConstraintContact') {             // one slave face, one master face (TaskFemConstraintContact)
+      const two: (Ref | undefined)[] = [refs[0], refs[1]]
+      two[slot] = [o, el]
+      set({ references: two[0] && two[1] ? two : two[0] ? [two[0]] : [] })
+      if (two[0] && two[1]) return
+      if (slot === 0 && !two[1]) setSlot(1)
+      if (!two[0] && two[1]) { report('warn', 'Only one master face for a contact constraint! Pick the slave face'); setSlot(0) }
+      return
+    }
     set({ references: refs.some((r) => r[0] === o && r[1] === el) ? refs.filter((r) => !(r[0] === o && r[1] === el)) : [...refs, [o, el]] })
   }
   const meshes = usePartScene({ part, active: !!doc && !!allowed, vertices: true, helperKey: 'fem-task', gateKey: `${kind}:${direction}`,
@@ -227,6 +241,11 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
     if (kind === 'ConstraintTemperature') return props!.constraint_type === 'CFlux' ? num('concentrated_heat_flux', 'Concentrated heat flux') : num('temperature', 'Temperature')
     if (kind === 'ConstraintInitialTemperature') return num('initial_temperature', 'Initial temperature')
     if (kind === 'ConstraintHeatflux') return props!.constraint_type === 'DFlux' ? num('distributed_heat_flux', 'Surface heat flux') : num('film_coef', 'Film coefficient') ?? num('ambient_temp', 'Ambient temperature')
+    if (kind === 'ConstraintContact') {
+      if (refs.length !== 2) return 'Only one master face and one slave face for a contact constraint! Pick both'
+      return num('slope', 'Contact stiffness') ?? opt('adjust', 'Clearance adjustment') ?? (props!.friction ? num('stick_slope', 'Stick slope')
+        ?? (Number.isFinite(Number(props!.friction_coefficient)) && Number(props!.friction_coefficient) >= 0 ? null : 'Friction coefficient: a number from 0') : null)
+    }
     if (kind === 'ConstraintSelfWeight') {
       const d = (props!.gravity_direction as number[]) ?? []
       return num('gravity_acceleration', 'Gravity acceleration') ?? (d.length === 3 && d.every(Number.isFinite) && d.some((x) => x !== 0) ? null : 'Direction: three numbers, not all 0')
@@ -246,6 +265,10 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
       clean.shape = clean.shape ?? shapes[0]
       for (const k of ['characteristic_length_max', 'characteristic_length_min']) clean[k] = String(clean[k] ?? '').trim() || null
     }
+    if (kind === 'ConstraintContact') {
+      clean.friction_coefficient = Number(clean.friction_coefficient)
+      clean.adjust = String(clean.adjust ?? '').trim() || null
+    }
     if (kind === 'MaterialSolid') {
       clean.poisson_ratio = Number(clean.poisson_ratio)
       for (const k of ['thermal_conductivity', 'thermal_expansion_coefficient', 'specific_heat']) clean[k] = String(clean[k] ?? '').trim() || null
@@ -262,7 +285,22 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
   return <div className="tasks pt-task" data-task="fem-object" data-kind={kind}>
     <div className="tbuttons"><button className="qbtn default" data-qf="ok" onClick={() => void ok()}>OK</button><button className="qbtn" onClick={() => openTask('fem', part, 'analysis')}>Cancel</button></div>
     <TaskBox title={edit ?? TITLE[kind]} icon={icon(kind)}>
-      {allowed && <>
+      {kind === 'ConstraintContact' && <>
+        {(['slave', 'master'] as const).map((w, i) => <div key={w}>
+          <Radio label={`Select ${w} geometry of type: ${allowed!.join(', ')}`} name={`pick_${w}`} checked={slot === i} onChange={() => setSlot(i as 0 | 1)} />
+          <div data-qf={`${w}_face`} style={{ minHeight: 20, border: '1px solid var(--border)', padding: 2, margin: '3px 0', display: 'flex', justifyContent: 'space-between' }}>
+            <span>{refs[i] ? `${refs[i][0]}:${refs[i][1]}` : ''}</span>
+            {refs[i] && <button className="qbtn" title="Remove" onClick={() => { set({ references: i === 0 ? [] : [refs[0]] }); setSlot(0) }}>×</button>}</div>
+        </div>)}
+        <Text label="Contact stiffness" name="spbSlope" value={str('slope')} onChange={(v) => set({ slope: v })} />
+        <Text label="Clearance adjustment" name="spbAdjust" value={str('adjust')} onChange={(v) => set({ adjust: v })} />
+        <Check label="Enable friction" name="ckbFriction" checked={!!props.friction} onChange={(v) => set({ friction: v })} />
+        {!!props.friction && <>
+          <Text label="Friction coefficient" name="spbFrictionCoeff" value={str('friction_coefficient')} onChange={(v) => set({ friction_coefficient: v })} />
+          <Text label="Stick slope" name="spbStickSlope" value={str('stick_slope')} onChange={(v) => set({ stick_slope: v })} />
+        </>}
+      </>}
+      {allowed && kind !== 'ConstraintContact' && <>
         <div data-qf="lbl_info">Select geometry of type: {allowed.join(', ')}</div>
         <div data-qf="references" style={{ minHeight: 60, maxHeight: 140, overflow: 'auto', border: '1px solid var(--border)', padding: 2, margin: '3px 0' }}>
           {refs.map(([o, el]) => <div key={o + el} data-ref={`${o}:${el}`} style={{ display: 'flex', justifyContent: 'space-between' }}><span>{o}:{el}</span>

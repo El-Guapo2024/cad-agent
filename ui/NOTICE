@@ -1115,6 +1115,7 @@ src/Mod/Fem/Gui/TaskFemConstraintInitialTemperature.ui   [licence: LGPL-2.1-or-l
     followed by src/fem_tasks.tsx
 
 src/Mod/Fem/Gui/TaskFemConstraintHeatflux.ui   [licence: LGPL-2.1-or-later]
+src/Mod/Fem/Gui/TaskFemConstraintContact.ui   [licence: LGPL-2.1-or-later]
     no copyright line in the file
     followed by src/fem_tasks.tsx
 

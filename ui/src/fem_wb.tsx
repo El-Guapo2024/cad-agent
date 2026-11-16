@@ -18,7 +18,7 @@ import { FEM_CMDS, FEM_MENUS, FEM_TOOLBARS, type FemItem } from './fem_cmds'
 
 const cmdOf = (c: string) => FEM_CMDS[c] ?? { menu: c, tip: null, pixmap: null, accel: null }
 const iconOf = (c: string) => (cmdOf(c).pixmap ? `fem-${cmdOf(c).pixmap}` : undefined) as IconName | undefined
-const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature and heat flux conditions, the Gmsh mesh, CalculiX (static, frequency, thermomech), Elmer (its elasticity and heat equations) Mystran (static, fixed and force) and Z88 (static: fixed, displacement, force and pressure) are'
+const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature, heat flux and contact conditions, the Gmsh mesh, CalculiX (static, frequency, thermomech), Elmer (its elasticity and heat equations) Mystran (static, fixed and force) and Z88 (static: fixed, displacement, force and pressure) are'
 
 /** The part the FEM commands work on: the open panel's, else the part of what is selected (a tree row or the 3D view's body), else the only one. */
 export function activePart(): string | null {
@@ -55,7 +55,8 @@ export async function runSolver() {
 const PANELS: Record<string, string> = { FEM_Analysis: 'analysis', FEM_MaterialSolid: 'add:MaterialSolid', FEM_ConstraintFixed: 'add:ConstraintFixed', FEM_ConstraintForce: 'add:ConstraintForce',
   FEM_ConstraintPressure: 'add:ConstraintPressure', FEM_MeshGmshFromShape: 'add:MeshGmsh', FEM_ResultShow: 'result',
   FEM_ConstraintDisplacement: 'add:ConstraintDisplacement', FEM_ConstraintTemperature: 'add:ConstraintTemperature',
-  FEM_ConstraintInitialTemperature: 'add:ConstraintInitialTemperature', FEM_ConstraintHeatflux: 'add:ConstraintHeatflux' }
+  FEM_ConstraintInitialTemperature: 'add:ConstraintInitialTemperature', FEM_ConstraintHeatflux: 'add:ConstraintHeatflux',
+  FEM_ConstraintContact: 'add:ConstraintContact' }
 function inPart(cmd: string, go: (part: string) => void) {
   const part = activePart()
   if (part) go(part); else report('warn', `${cmdOf(cmd).menu ?? cmd}: select the part the analysis belongs to`)

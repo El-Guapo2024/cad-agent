@@ -242,6 +242,16 @@ class ConstraintHeatflux(FemObject):
     PROPS = {"ambient_temp": "AmbientTemp", "film_coef": "FilmCoef", "distributed_heat_flux": "DistributedHeatFlux"}
 
 
+class ConstraintContact(FemObject):
+    """ObjectsFem.makeConstraintContact: a contact pair between two faces of separate solids (a Compound of them),
+    the first reference the slave face, the second the master; surface_behavior "Linear" (a penalty of slope), "Hard"
+    or "Tied", optionally with friction (friction_coefficient, stick_slope). None leaves FreeCAD's default."""
+    MAKER = "makeConstraintContact"
+    POS = ("references",)
+    DEFAULTS = {"references": (), "surface_behavior": None, "slope": None, "adjust": None, "friction": None,
+                "friction_coefficient": None, "stick_slope": None}
+
+
 class MeshGmsh(FemObject):
     """ObjectsFem.makeMeshGmsh: the shape to mesh and Gmsh's parameters."""
     MAKER = "makeMeshGmsh"
@@ -253,7 +263,7 @@ class MeshGmsh(FemObject):
 KINDS = {c.__name__: c for c in (SolverCalculiX, SolverElmer, SolverMystran, SolverZ88, EquationElasticity, EquationHeat, MaterialSolid,
                                  ConstraintFixed, ConstraintForce, ConstraintPressure, ConstraintDisplacement,
                                  ConstraintSelfWeight, ConstraintTemperature, ConstraintInitialTemperature,
-                                 ConstraintHeatflux, MeshGmsh)}
+                                 ConstraintHeatflux, ConstraintContact, MeshGmsh)}
 
 
 def load(path):

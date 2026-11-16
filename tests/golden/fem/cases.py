@@ -218,6 +218,37 @@ def buckling(doc, App, ObjectsFem):
     return an, mesh
 
 
+def contact(doc, App, ObjectsFem):
+    """Two separate steel blocks, a 20 x 20 x 10 one standing on a 40 x 20 x 10 one (a compound of the two, meshed
+    apart): the lower block fixed at its bottom, 10 MPa pressing on the upper's top, and a contact pair (penalty,
+    FreeCAD's linear surface behaviour) between the upper's bottom and the lower's top."""
+    import Part
+    low = Part.makeBox(40, 20, 10)
+    up = Part.makeBox(20, 20, 10, App.Vector(10, 0, 10))
+    blocks = doc.addObject("Part::Feature", "Blocks")
+    blocks.Shape = Part.makeCompound([low, up])
+    doc.recompute()
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    an.addObject(ObjectsFem.makeSolverCalculiXCcxTools(doc, "CalculiXccxTools"))
+    an.addObject(_steel(ObjectsFem, doc))
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(blocks, "Face5")]
+    an.addObject(fix)
+    p = ObjectsFem.makeConstraintPressure(doc, "Pressure")
+    p.References = [(blocks, "Face12")]
+    p.Pressure = "10 MPa"
+    an.addObject(p)
+    c = ObjectsFem.makeConstraintContact(doc, "Contact")
+    c.References = [(blocks, "Face11"), (blocks, "Face6")]      # the upper's bottom (slave), the lower's top (master)
+    c.Slope = "1000000 GPa/m"
+    an.addObject(c)
+    mesh = ObjectsFem.makeMeshGmsh(doc, "Mesh")
+    mesh.Shape = blocks
+    mesh.CharacteristicLengthMax = "5 mm"
+    an.addObject(mesh)
+    return an, mesh
+
+
 CASES = {"cantilever": cantilever, "pressure_plate": pressure_plate, "plate_hole": plate_hole,
          "displacement_bar": displacement_bar, "self_weight": self_weight, "thermomech": thermomech,
-         "frequency": frequency, "buckling": buckling}
+         "frequency": frequency, "buckling": buckling, "contact": contact}
