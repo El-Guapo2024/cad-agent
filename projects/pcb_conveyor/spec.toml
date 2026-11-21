@@ -1,0 +1,25 @@
+# What one conveyor module must do, as the kernel can measure it. SMEMA = SMEMA Mechanical Equipment Interface
+# Standard 1.2 (SuperHouse PCBCONVEYOR, Resources/smema1.2.pdf).
+
+[envelope]                   # one module: 600 long, the frame's depth, to the board height and above
+max_mm = [610, 600, 1000]
+
+[[axis]]                     # the rear rail's reach: boards and carriers from 50 to 350 wide
+name = "width"
+direction = [0, 1, 0]
+travel_min_mm = 300
+
+[[clearance]]                # parts under the board: room for a populated bottom side
+a = "hex_shaft"
+b = "test_board"
+min_mm = 40.0
+
+[[clearance]]                # the board between the rails, not jammed (0.5 a side as drawn)
+a = "front_rail"
+b = "test_board"
+min_mm = 0.3
+
+[[clearance]]
+a = "rear_rail"
+b = "test_board"
+min_mm = 0.3

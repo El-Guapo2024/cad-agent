@@ -54,6 +54,13 @@ PROCESS = {
         "max_bbox_mm": (300, 200, 100),
         "source": "3 mm end mill, small router assumption",
     },
+    "cnc_long": {                  # bar work: a long rail or beam machined along its length
+        "min_wall_mm": 1.0,
+        "min_web_mm": 2.0,
+        "min_hole_mm": 1.0,
+        "max_bbox_mm": (1000, 500, 150),
+        "source": "a vertical mill with 1000 mm X travel, bar clamped in a vise row; assumption",
+    },
 }
 
 # Below this ratio of smallest to largest dimension a part is treated as flat,
