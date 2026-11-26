@@ -60,6 +60,29 @@ class Doc:
             l = x.find("Link"); return (None, l.get("value")) if l is not None else None
         return (xl.get("file") or None, xl.get("name"))
 
+def parents(doc):
+    """child -> container, for containers that carry a Placement (App::Part, assemblies, links to groups)."""
+    out = {}
+    for n, pr in doc.props.items():
+        g = pr.get("Group")
+        if g is None or pr.get("Placement") is None or doc.types.get(n) == "App::DocumentObjectGroup":
+            continue
+        ll = g.find("LinkList")
+        if ll is None: continue
+        for l in ll.findall("Link"):
+            out.setdefault(l.get("value"), n)
+    return out
+
+def world(doc, name, s):
+    """Apply the placements of the containers the object sits in, innermost first."""
+    par = doc.__dict__.setdefault("_par", parents(doc)); n = name; seen = set()
+    while n in par and n not in seen:
+        seen.add(n); n = par[n]
+        if doc.types.get(n) == "PartDesign::Body":
+            continue                       # a Body's own shape already carries its placement
+        s = s.Moved(TopLoc_Location(placement(doc.props[n]["Placement"])))
+    return s
+
 def resolve(doc, name, depth=0):
     """The solid for an object: its stored shape, or what its link points at, with the link's placement."""
     if depth > 6: return None
@@ -86,6 +109,7 @@ if __name__ == "__main__":
             if not d.visible(n): continue
             s = resolve(d, n)
             if s is None or s.IsNull(): print("  unresolved", n, t, d.link(n) if t == "App::Link" else ""); continue
+            s = world(d, n, s)
             bodies.append((d.label(n), t, s))
     print(len(bodies), "bodies")
     for lab, t, s in bodies[:400]:
