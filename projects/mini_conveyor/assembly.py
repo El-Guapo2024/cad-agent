@@ -18,7 +18,7 @@ from cad_agent.state import build_part, bought_solid
 SLUG = "mini_conveyor"
 
 CARRIER = 170.0
-GAP = CARRIER + 1.0           # 0.5 a side
+GAP = CARRIER + 2.0           # 1.0 a side: the physics sim jammed at 1.5 mm module offset with 0.5 a side
 CARRIER_T = 6.0
 Z0 = 137.0 - CARRIER_T        # the belts' top: the carrier's bottom
 L = 250.0

@@ -11,7 +11,7 @@ MATERIAL = "aluminium"
 PROCESS = "cnc"
 MIN_FEATURE_MM = 1.0
 
-PARAMS = {"dia": 20.0, "width": 4.2, "flange": 1.0, "flange_dia": 22.6, "bore": 6.0, "hex": 0.0}
+PARAMS = {"dia": 20.0, "width": 4.2, "flange": 1.0, "flange_dia": 21.0, "bore": 6.0, "hex": 0.0}
 
 
 def build(dia, width, flange, flange_dia, bore, hex):
