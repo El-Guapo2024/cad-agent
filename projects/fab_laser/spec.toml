@@ -1,0 +1,19 @@
+# Machine 1 (fab, laser only), as the kernel can measure it.
+
+[envelope]                   # base 340 deep and out to x 350 under the source, the source to x 410, the Z motor on top
+max_mm = [540, 350, 640]
+
+[[clearance]]                # the lens over the board at the focus: the working distance (placeholder 185)
+a = "lens"
+b = "board"
+min_mm = 150.0
+
+[[clearance]]                # the source rides clear of the column
+a = "uv_source"
+b = "column"
+min_mm = 5.0
+
+[[clearance]]                # the nut block runs beside the column without rubbing
+a = "nut_block"
+b = "column"
+min_mm = 0.5

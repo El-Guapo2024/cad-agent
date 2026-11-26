@@ -1,0 +1,4348 @@
+{
+  "project": "fab_laser",
+  "parts": {
+    "arm": {
+      "state": "BUILT",
+      "doc": "The laser arm: a horizontal aluminium plate from the Z carriage forward over the board, carrying the galvo head",
+      "params": {
+        "x0": -70.0,
+        "x1": 410.0,
+        "depth": 177.0,
+        "t": 12.0,
+        "lens_y": 122.0,
+        "lens_hole": 85.0
+      },
+      "material": "aluminium",
+      "process": "cnc_long",
+      "build_s": 0.003,
+      "bbox_mm": [
+        480.0,
+        177.0,
+        12.0
+      ],
+      "volume_cm3": 951.426,
+      "mass_g": 2568.85
+    },
+    "carriage": {
+      "state": "BUILT",
+      "doc": "The Z carriage: an aluminium plate bolted to the two guide blocks on the column's rail; the laser arm hangs off its",
+      "params": {
+        "w": 100.0,
+        "h": 140.0,
+        "t": 10.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.002,
+      "bbox_mm": [
+        100.0,
+        10.0,
+        140.0
+      ],
+      "volume_cm3": 140.0,
+      "mass_g": 378.0
+    },
+    "carrier": {
+      "state": "BUILT",
+      "doc": "The line's board carrier: one per board, carried by hand from station to station and located at each the same",
+      "params": {
+        "size_x": 170.0,
+        "size_y": 170.0,
+        "thick": 6.0,
+        "board": 150.0,
+        "board_t": 1.6,
+        "fit": 0.2,
+        "pin_hole": 4.0,
+        "pin_edge": 7.62,
+        "pin_x": 70.0,
+        "notch": 12.0,
+        "flip_hole": 3.0,
+        "flip_x": 69.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.005,
+      "bbox_mm": [
+        170.0,
+        170.0,
+        6.0
+      ],
+      "volume_cm3": 136.259,
+      "mass_g": 367.9
+    },
+    "nest": {
+      "state": "BUILT",
+      "doc": "A station's nest: the plate every station (laser, paste, LumenPnP) carries, that the carrier drops onto by hand.",
+      "params": {
+        "size_x": 200.0,
+        "front": 10.0,
+        "back": 180.0,
+        "thick": 10.0,
+        "pin": 4.0,
+        "pin_edge": 7.62,
+        "pin_x": 70.0,
+        "bolt": 5.5,
+        "cbore": 9.5,
+        "cbore_d": 5.5,
+        "bolt_x": 85.0,
+        "bolt_y": 75.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.004,
+      "bbox_mm": [
+        200.0,
+        190.0,
+        10.0
+      ],
+      "volume_cm3": 377.762,
+      "mass_g": 1019.96
+    },
+    "nut_block": {
+      "state": "BUILT",
+      "doc": "Holds the Z lead nut behind the carriage, beside the column, so the screw runs clear of the column and the rail.",
+      "params": {
+        "w": 32.0,
+        "depth": 48.0,
+        "h": 40.0,
+        "bore": 22.0,
+        "bore_y": 33.0,
+        "x_back": 18.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.001,
+      "bbox_mm": [
+        42.0,
+        48.0,
+        40.0
+      ],
+      "volume_cm3": 51.035,
+      "mass_g": 137.79
+    },
+    "screw_support": {
+      "state": "BUILT",
+      "doc": "The lead screw's bottom support: a block on the back beam with a bearing bore (a 12 mm bearing, drawn as the bore",
+      "params": {
+        "w": 34.0,
+        "d": 34.0,
+        "h": 20.0,
+        "bore": 12.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.001,
+      "bbox_mm": [
+        34.0,
+        34.0,
+        20.0
+      ],
+      "volume_cm3": 20.858,
+      "mass_g": 56.32
+    },
+    "top_plate": {
+      "state": "BUILT",
+      "doc": "Caps the column and carries the Z stepper over the lead screw; the coupler passes through its hole. Frame: its",
+      "params": {
+        "x0": -20.0,
+        "x1": 70.0,
+        "d": 50.0,
+        "t": 8.0,
+        "screw_x": 45.0,
+        "hole": 29.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.001,
+      "bbox_mm": [
+        90.0,
+        50.0,
+        8.0
+      ],
+      "volume_cm3": 30.716,
+      "mass_g": 82.93
+    }
+  },
+  "renders": [
+    {
+      "part": "arm",
+      "view": "iso",
+      "path": "out/arm_iso.png",
+      "triangles": 220
+    },
+    {
+      "part": "carriage",
+      "view": "iso",
+      "path": "out/carriage_iso.png",
+      "triangles": 12
+    },
+    {
+      "part": "carrier",
+      "view": "iso",
+      "path": "out/carrier_iso.png",
+      "triangles": 1252
+    },
+    {
+      "part": "nest",
+      "view": "iso",
+      "path": "out/nest_iso.png",
+      "triangles": 2076
+    },
+    {
+      "part": "nut_block",
+      "view": "iso",
+      "path": "out/nut_block_iso.png",
+      "triangles": 276
+    },
+    {
+      "part": "screw_support",
+      "view": "iso",
+      "path": "out/screw_support_iso.png",
+      "triangles": 268
+    },
+    {
+      "part": "top_plate",
+      "view": "iso",
+      "path": "out/top_plate_iso.png",
+      "triangles": 220
+    },
+    {
+      "part": "assembly",
+      "view": "iso",
+      "path": "out/assembly_iso.png",
+      "triangles": 9928
+    }
+  ],
+  "rows": [
+    {
+      "subject": "arm",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "480.0 x 177.0 x 12.0 mm",
+      "limit": "1000 x 500 x 150 mm",
+      "source": "a vertical mill with 1000 mm X travel, bar clamped in a vise row; assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "arm",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "11.9995 mm at the 1st percentile (min 11.9995, median 11.9995, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "arm",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "12.5 mm between outer edge and cutout at (-42.5, -122.0), at (-0.0, -170.75)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 1 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "arm",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "1 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "arm",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "85 mm at (0, -122, 6), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "arm",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "951.43 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "arm",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "24.02% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_arm_iso.png"
+      ]
+    },
+    {
+      "subject": "arm",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_arm_iso.png"
+      ]
+    },
+    {
+      "subject": "carriage",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "100.0 x 10.0 x 140.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "9.9998 mm at the 1st percentile (min 9.9998, median 9.9998, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "no cutout reaches the mid-plane",
+      "limit": "2.0 mm",
+      "source": "a plain plate has no web between a cutout and the edge; its cutout count is still gated below",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "0 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage",
+      "rule": "min hole",
+      "state": "N/A",
+      "measured": "no hole or slot",
+      "limit": "1.0 mm",
+      "source": "nothing to size",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "140.00 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "24.91% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carriage_iso.png"
+      ]
+    },
+    {
+      "subject": "carriage",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carriage_iso.png"
+      ]
+    },
+    {
+      "subject": "carrier",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "170.0 x 170.0 x 6.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "4.3931 mm at the 1st percentile (min 0.4104, median 4.3948, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "3.8 mm between outer edge and cutout at (-80.6, 87.6), at (-83.1, 85.0)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 10 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "4 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "3 mm at (-69, 85, 2.2), the smallest of 6 holes and slots",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "136.26 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "31.03% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carrier_iso.png"
+      ]
+    },
+    {
+      "subject": "carrier",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carrier_iso.png"
+      ]
+    },
+    {
+      "subject": "nest",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "200.0 x 190.0 x 10.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "9.9997 mm at the 1st percentile (min 4.4997, median 9.9997, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "8.4376 mm between cutout at (-89.8, 10.0) and cutout at (-72.0, 7.6), at (-76.14, 8.59)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 21 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "6 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "4 mm at (-70, 7.62, -5), the smallest of 6 holes and slots",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "377.76 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "32.16% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_nest_iso.png"
+      ]
+    },
+    {
+      "subject": "nest",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_nest_iso.png"
+      ]
+    },
+    {
+      "subject": "nut_block",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "42.0 x 48.0 x 40.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "4.0413 mm at the 1st percentile (min 4.0036, median 22.7042, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "not a flat part (thinnest/longest = 0.83)",
+      "limit": "2.0 mm",
+      "source": "the in-plane rule applies below a ratio of 0.25",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "22 mm at (0, 33, 0), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "51.03 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "41.02% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_nut_block_iso.png"
+      ]
+    },
+    {
+      "subject": "nut_block",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_nut_block_iso.png"
+      ]
+    },
+    {
+      "subject": "screw_support",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "34.0 x 34.0 x 20.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "11.015 mm at the 1st percentile (min 11.0023, median 19.9999, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "not a flat part (thinnest/longest = 0.59)",
+      "limit": "2.0 mm",
+      "source": "the in-plane rule applies below a ratio of 0.25",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "12 mm at (0, 0, 10), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "20.86 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "52.91% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_screw_support_iso.png"
+      ]
+    },
+    {
+      "subject": "screw_support",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_screw_support_iso.png"
+      ]
+    },
+    {
+      "subject": "top_plate",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "90.0 x 50.0 x 8.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "7.9999 mm at the 1st percentile (min 7.9999, median 7.9999, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "10.5 mm between outer edge and cutout at (30.5, 0.0), at (64.75, -0.0)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 1 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "1 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "29 mm at (45, 0, 4), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "30.72 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "32.60% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_top_plate_iso.png"
+      ]
+    },
+    {
+      "subject": "top_plate",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_top_plate_iso.png"
+      ]
+    },
+    {
+      "subject": "fab_laser",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "placements",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs back_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 195.359 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs block_lower",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs block_upper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 75.961 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs board",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 218.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs carriage",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 218.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 278.674 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 239.282 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 49.679 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 37.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 224.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 39.294 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 218.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 218.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 15.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 175.932 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 291.824 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 294.551 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 234.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 234.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arm vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 234.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs block_lower",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 201.322 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs block_upper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 281.316 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs board",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 70.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs carriage",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 194.435 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 60.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 483.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 250.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 226.850 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 244.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 192.213 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 50.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 244.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 220.380 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 220.380 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 40.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 495.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 500.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 224.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "back_beam vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs block_upper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 34.600 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs board",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 232.399 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs carriage",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.150 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 237.782 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 338.223 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 82.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 28.003 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 33.003 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 234.241 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 311.334 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 311.334 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.005 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 181.978 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 250.969 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 253.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 87.471 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 382.280 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 245.740 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_lower vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 245.740 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs board",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 310.575 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs carriage",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 308.897 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 158.531 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 399.253 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 82.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 28.003 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 33.003 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 118.887 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 313.491 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 373.332 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 373.332 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.005 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 261.771 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 172.213 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 173.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 87.471 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 437.202 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 324.647 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "block_upper vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 324.647 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs carriage",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 223.009 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.005 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 74.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 512.889 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 33.277 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 279.401 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 88.865 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 185.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 4.400 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 273.995 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.380 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.380 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 89.107 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 76.844 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 526.324 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 528.016 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 235.441 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 14.400 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 14.400 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 221.118 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 13.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 150.404 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 326.014 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 72.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 27.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 82.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 225.621 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 294.752 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 294.752 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 174.734 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 163.864 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 166.193 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 67.186 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 349.794 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 234.214 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carriage vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 234.214 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs column",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 64.622 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 511.474 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.361 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.885 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 276.740 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 79.480 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.605 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 272.090 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 82.462 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 67.417 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 524.754 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 526.879 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 225.222 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 12.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 253.180 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 95.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 14.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 105.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 58.310 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 227.203 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 227.203 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 8.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 15.486 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.566 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 292.746 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 56.569 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "column vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 56.569 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_beam",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 582.954 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 204.537 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 199.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 301.293 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 516.212 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 199.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 566.968 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 556.387 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 53.203 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 463.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 193.608 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 580.763 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 531.117 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 523.006 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs galvo",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 252.073 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 384.366 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 267.808 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 211.249 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 369.899 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 25.620 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 25.620 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 254.880 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 256.143 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 598.148 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 592.980 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 251.030 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_beam vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs lead_nut",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 104.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 109.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 236.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 82.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 231.849 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 231.849 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 87.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 210.238 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 219.948 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 213.860 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 354.318 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 246.051 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 246.051 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs lead_screw",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 125.898 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 280.280 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 370.123 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 353.597 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 32.829 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 224.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 211.029 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 216.028 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 99.454 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 381.014 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 299.152 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 284.028 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs lens",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 125.026 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 72.945 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 261.889 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 237.443 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 37.829 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.404 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 104.454 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 262.880 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 108.747 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 45.891 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 191.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 100.798 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 195.222 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 195.222 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.218 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 316.291 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 310.541 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 15.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 336.602 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 201.993 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lens vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 201.993 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs nut_block",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 276.487 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 81.633 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 60.902 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 529.321 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 531.907 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 236.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 210.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs pin_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 350.256 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 338.985 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 13.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 224.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 211.171 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 216.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 77.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 377.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 294.783 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 284.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs pin_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 136.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.781 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 244.943 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 582.185 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 568.719 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 261.767 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 378.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_l vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 128.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.781 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 224.807 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 571.455 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 566.537 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 230.901 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 238.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 128.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_r vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs screw_support",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 29.883 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 68.798 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 60.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 95.525 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 314.350 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.519 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.519 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 475.013 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 480.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 207.954 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 251.205 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.664 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "screw_support vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 40.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper vs top_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 209.033 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 595.929 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 544.730 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 535.146 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate vs uv_source",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 202.684 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 590.931 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 541.479 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "top_plate vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 540.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_source vs y_beam_far",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 246.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_source vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 271.553 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_source vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 246.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "y_beam_far vs y_beam_l",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 370.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "y_beam_far vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 210.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "y_beam_l vs y_beam_r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 120.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/z",
+      "state": "PASS",
+      "measured": "tightest 0.005 mm between block_lower and rail at z = -80.0 mm (189 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -80.0 to +100.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "axis z",
+      "rule": "reach",
+      "state": "UNCHECKED",
+      "measured": "travel 180.0 mm, but no work span declared",
+      "limit": "a work span the machine promises to cover",
+      "source": "declare work=(min, max) on the axis, or the travel figure proves nothing about usable area",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "450.0 \u00d7 340.0 mm across 4 bodies at z = -0.00 (front_beam, y_beam_far, y_beam_l, y_beam_r)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "4 bodies on the plane, 22 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "UNCHECKED",
+      "measured": "no mass for 18 of 26 bodies: back_beam (bought part 'extrusion_4040' declares no mass_g with a mass_source); block_lower (bought part 'guide_block' declares no mass_g with a mass_source); block_upper (bought part 'guide_block' declares no mass_g with a mass_source); board (bought part 'board' declares no mass_g with a mass_source); column (bought part 'extrusion_4040' declares no mass_g with a mass_source); coupler (bought part 'coupler' declares no mass_g with a mass_source); front_beam (bought part 'extrusion_4040' declares no mass_g with a mass_source); galvo (bought part 'galvo_head' declares no mass_g with a mass_source); lead_nut (bought part 'lead_nut' declares no mass_g with a mass_source); lead_screw (bought part 'lead_screw' declares no mass_g with a mass_source); lens (bought part 'f_theta_lens' declares no mass_g with a mass_source); pin_l (bought part 'dowel_pin' declares no mass_g with a mass_source); pin_r (bought part 'dowel_pin' declares no mass_g with a mass_source); rail (bought part 'guide_rail' declares no mass_g with a mass_source); stepper (bought part 'stepper' declares no mass_g with a mass_source); y_beam_far (bought part 'extrusion_4040' declares no mass_g with a mass_source); y_beam_l (bought part 'extrusion_4040' declares no mass_g with a mass_source); y_beam_r (bought part 'extrusion_4040' declares no mass_g with a mass_source)",
+      "limit": "every body's mass known",
+      "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "held by screw_support, coupler, their spots 476.5 mm apart along the axis (diameter 12.0)",
+      "limit": "spots apart by at least the diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "axis z",
+      "rule": "mechanism/guided",
+      "state": "PASS",
+      "measured": "guided by 2 pairs",
+      "limit": "guide pairs within 0.5 mm",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "axis z",
+      "rule": "mechanism/driven",
+      "state": "PASS",
+      "measured": "lead_screw reaches what the axis moves",
+      "limit": "within 0.5 mm of a moved body",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "axis z",
+      "rule": "mechanism/actuated",
+      "state": "PASS",
+      "measured": "actuated by stepper",
+      "limit": "an actuator body (motor, crank, cylinder)",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "540.0 x 340.0 x 635.0 mm",
+      "limit": "<= 540 x 350 x 640 mm",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "lens|board",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "185.000 mm",
+      "limit": ">= 150 mm",
+      "source": "spec.toml [[clearance]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_source|column",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "96.566 mm",
+      "limit": ">= 5 mm",
+      "source": "spec.toml [[clearance]] #2",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "nut_block|column",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "1.000 mm",
+      "limit": ">= 0.5 mm",
+      "source": "spec.toml [[clearance]] #3",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "board",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "FR4 copper clad 1.6 mm, 1 oz double-sided, 150 x 150 (cut to size)",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical 5-12 clamp coupler, OD 25, length 25",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "dowel_pin",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: ISO 8734 dowel 4 m6 x 16 (left); a 4 mm diamond locating pin (right); any supplier",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "extrusion_4040",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "cad tables extrusions: 4040 (w 40, h 40, slot 8, bore 6.8); length cut to order",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "f_theta_lens",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: placeholder: 110 x 110 field f-theta lens, 355 nm, OD 80, length 45; working distance ~185 (UNVERIFIED)",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "galvo_head",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: placeholder: typical 10 mm galvo head on a 3-5 W 355 nm marking machine; replace with the chosen laser's drawing",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "guide_block",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical MGN12H block (width 27, length 45.4, top 13 over the rail's bottom, 3 clear of it); check against HIWIN's MGN catalogue",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "guide_rail",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical MGN12 rail (width 12, height 8); check against HIWIN's MGN catalogue page",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_nut",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical Tr12 x 3 nut body, OD 22; flange and fixing holes to the maker's drawing",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "lead_screw",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: nominal Tr12 x 3 (ISO 2904 designation); length to the design",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: NEMA 17 frame 42.3 square; length 40 and shaft 5 x 20 class-typical, motor not chosen",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_source",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: placeholder: typical 3-5 W 355 nm air-cooled source with beam expander, 340 x 110 x 110 (UNVERIFIED)",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    }
+  ],
+  "summary": {
+    "parts_built": 7,
+    "parts_failed": 0,
+    "checks_run": 32,
+    "rows": 405,
+    "by_state": {
+      "PASS": 376,
+      "UNCHECKED": 24,
+      "N/A": 5
+    },
+    "by_check": {
+      "geometry": {
+        "PASS": 31,
+        "UNCHECKED": 5,
+        "N/A": 4
+      },
+      "visual": {
+        "PASS": 7,
+        "UNCHECKED": 7
+      },
+      "placements": {
+        "N/A": 1
+      },
+      "fit": {
+        "PASS": 325
+      },
+      "sweep": {
+        "PASS": 1
+      },
+      "reach": {
+        "UNCHECKED": 1
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "com": {
+        "UNCHECKED": 1
+      },
+      "mechanism": {
+        "PASS": 4
+      },
+      "spec": {
+        "PASS": 4
+      },
+      "provenance": {
+        "PASS": 2,
+        "UNCHECKED": 10
+      }
+    },
+    "ok": false
+  },
+  "written_utc": "2026-11-26T19:21:58Z"
+}
