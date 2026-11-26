@@ -51,3 +51,19 @@ https://www.instructables.com/Double-sided-PCBs-with-a-laser-cutter
 - Georgia Tech GTRI PPMachine manual (too large to read here). https://cshaft.gtri.gatech.edu/files/2020/08/PPMachine-Manual.pdf
 - Quad QSA-30A retrofit notes. https://pico-systems.com/QSA30.html
 - MIT CBA APS Gold-Place L40. https://fab.cba.mit.edu/content/tools/APS_L40_Pick_and_Place/index.html
+
+## Decision check: Option A (0.8 mm board, laser for copper + holes + outline, paste vias), 2026-11-26
+Library copies under ~/work/smt-references (not in the repo).
+- LPKF ProtoLaser U4 datasheet: UV 355 nm cuts 0.5 mm FR4 "200 mm/s, 70 repetitions" (about 3 mm/s net); needs an
+  exhaust unit and 6 bar compressed air. LPKF's comparison: H4 laser-cuts FR4 to ~0.75 mm, thicker FR4 is
+  mechanically drilled; U4/S4 to ~2 mm. 0.8 mm is at the edge for a weaker laser: test 0.5 and 0.8.
+- LPKF ProConduct brochure: holes from 0.4 mm, aspect up to 1:4, 0.5-1.5 mm boards, average 19.2 mOhm, stable over
+  250 cycles -40/125 C, survives 250 C reflow. The method is NOT a needle: a protective film, holes drilled through
+  it, polymer squeegeed while a vacuum table pulls it through the holes, film off, 160 C for 30 min.
+  => the bed should be a heated vacuum bed (it also holds a thin board flat).
+- Against paste vias (patents): voids and under-fill raise resistance after reflow; moisture; resistance drift.
+  Needle-filled ink runs out of the hole (Hackaday). Test coupons with thermal cycling.
+- Against 0.8 mm: more warpage than 1.6 mm, worse under heavy one-sided connectors at reflow (ALLPCB, Siemens).
+- Against UV on FR4: glass and resin ablate differently, so slow multi-pass cuts with cooling gaps; low average
+  power limits thickness (MKS/Spectra-Physics app note, Laser Focus World).
+- Against the spindle (Option B): no source found on vibration in a PnP machine; that concern is our own reasoning.
