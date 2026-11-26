@@ -1,0 +1,19 @@
+# What one mini conveyor module must do, as the kernel can measure it.
+
+[envelope]                   # a bench-top module: 250 long, about 280 across with its motor, to the carrier's top
+max_mm = [260, 290, 140]
+
+[[clearance]]                # the carrier between the rails, not jammed (0.5 a side as drawn)
+a = "front_rail"
+b = "carrier"
+min_mm = 0.3
+
+[[clearance]]
+a = "rear_rail"
+b = "carrier"
+min_mm = 0.3
+
+[[clearance]]                # nothing under the carrier but the belts: room for parts on a board's bottom side
+a = "shaft"
+b = "carrier"
+min_mm = 15.0

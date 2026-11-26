@@ -1,0 +1,4296 @@
+{
+  "project": "mini_conveyor",
+  "parts": {
+    "carrier": {
+      "state": "BUILT",
+      "doc": "The line's board carrier: one per board, it rides every conveyor and is located at every station the same way.",
+      "params": {
+        "size_x": 170.0,
+        "size_y": 170.0,
+        "thick": 6.0,
+        "board": 150.0,
+        "board_t": 1.6,
+        "fit": 0.2,
+        "pin_hole": 3.962,
+        "pin_edge": 7.62,
+        "pin_x": 70.0,
+        "notch": 12.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.008,
+      "bbox_mm": [
+        170.0,
+        170.0,
+        6.0
+      ],
+      "volume_cm3": 136.313,
+      "mass_g": 368.04
+    },
+    "motor_mount": {
+      "state": "BUILT",
+      "doc": "Belt motor mount: a plate the stepper's face bolts to, held off the front rail's outer face by two legs so the",
+      "params": {
+        "size": 46.0,
+        "plate_t": 5.0,
+        "depth": 26.0,
+        "leg": 8.0,
+        "hole": 23.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.003,
+      "bbox_mm": [
+        46.0,
+        26.0,
+        46.0
+      ],
+      "volume_cm3": 23.959,
+      "mass_g": 64.69
+    },
+    "pulley": {
+      "state": "BUILT",
+      "doc": "Belt pulley: the flanged roller the flat belt wraps, at each rail's ends (idlers on axles) and below",
+      "params": {
+        "dia": 20.0,
+        "width": 4.2,
+        "flange": 1.0,
+        "flange_dia": 22.6,
+        "bore": 6.0,
+        "hex": 0.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.001,
+      "bbox_mm": [
+        22.6,
+        5.2,
+        22.6
+      ],
+      "volume_cm3": 1.574,
+      "mass_g": 4.25
+    },
+    "rail": {
+      "state": "BUILT",
+      "doc": "Mini conveyor rail: the aluminium bar each belt runs along (two per module, both fixed: the line has one carrier",
+      "params": {
+        "length": 250.0,
+        "thick": 10.0,
+        "top": 6.0,
+        "bottom": -45.0,
+        "ledge": 4.5,
+        "ledge_t": 5.0,
+        "belt_t": 1.5,
+        "ledge_end": 24.0,
+        "lead_in": 3.0,
+        "idler_x": 112.0,
+        "idler_z": -11.5,
+        "axle": 6.0,
+        "slot": 6.0,
+        "drive_z": -28.0,
+        "bore": 22.0,
+        "mount_x": 105.0,
+        "mount_hole": 5.5
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.107,
+      "bbox_mm": [
+        250.0,
+        14.5,
+        51.0
+      ],
+      "volume_cm3": 126.471,
+      "mass_g": 341.47
+    }
+  },
+  "renders": [
+    {
+      "part": "carrier",
+      "view": "iso",
+      "path": "out/carrier_iso.png",
+      "triangles": 864
+    },
+    {
+      "part": "motor_mount",
+      "view": "iso",
+      "path": "out/motor_mount_iso.png",
+      "triangles": 284
+    },
+    {
+      "part": "pulley",
+      "view": "iso",
+      "path": "out/pulley_iso.png",
+      "triangles": 612
+    },
+    {
+      "part": "rail",
+      "view": "iso",
+      "path": "out/rail_iso.png",
+      "triangles": 1076
+    },
+    {
+      "part": "assembly",
+      "view": "iso",
+      "path": "out/assembly_iso.png",
+      "triangles": 15448
+    }
+  ],
+  "rows": [
+    {
+      "subject": "carrier",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "170.0 x 170.0 x 6.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "4.3948 mm at the 1st percentile (min 0.2012, median 4.3948, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "3.8 mm between outer edge and cutout at (-81.2, 85.0), at (-83.1, 85.0)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 10 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "4 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "3.962 mm at (-70, 7.62, 3), the smallest of 4 holes and slots",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "136.31 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "31.03% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carrier_iso.png"
+      ]
+    },
+    {
+      "subject": "carrier",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carrier_iso.png"
+      ]
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "46.0 x 26.0 x 46.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "4.9999 mm at the 1st percentile (min 4.9999, median 7.9999, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "not a flat part (thinnest/longest = 0.57)",
+      "limit": "2.0 mm",
+      "source": "the in-plane rule applies below a ratio of 0.25",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "23 mm at (0, -23.5, 0), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "23.96 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "36.31% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_motor_mount_iso.png"
+      ]
+    },
+    {
+      "subject": "motor_mount",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_motor_mount_iso.png"
+      ]
+    },
+    {
+      "subject": "pulley",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "22.6 x 5.2 x 22.6 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pulley",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "1.0 mm at the 1st percentile (min 1.0, median 5.2, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pulley",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "7.0 mm between outer edge and cutout at (-3.0, 0.0), at (6.5, -0.0)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 1 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pulley",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "1 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pulley",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "6 mm at (0, 2.6, 0), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pulley",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "1.57 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pulley",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "41.91% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_pulley_iso.png"
+      ]
+    },
+    {
+      "subject": "pulley",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_pulley_iso.png"
+      ]
+    },
+    {
+      "subject": "rail",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "250.0 x 14.5 x 51.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "rail",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "3.4253 mm at the 1st percentile (min 2.2541, median 9.9997, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "rail",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "4.0 mm between outer edge and cutout at (-112.0, -8.5), at (-123.0, -11.5)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 6 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "rail",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "3 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "rail",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "5.5 mm at (-105, -5, -38.5), the smallest of 5 holes and slots",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "rail",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "126.47 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "rail",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "31.39% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_rail_iso.png"
+      ]
+    },
+    {
+      "subject": "rail",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_rail_iso.png"
+      ]
+    },
+    {
+      "subject": "mini_conveyor",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "placements",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs coupler",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs cross_beam_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 46.098 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs cross_beam_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 46.098 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.347 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.347 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.117 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 16.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 18.047 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 18.047 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 65.765 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 65.765 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 65.765 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 65.765 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 11.630 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.347 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.347 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.117 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 16.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 18.047 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 18.047 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 35.711 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs cross_beam_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 86.561 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs cross_beam_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 86.561 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 99.936 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 99.936 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 4.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 13.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 13.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 93.560 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 93.560 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.162 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 196.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 196.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.121 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 199.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 199.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 185.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 178.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 200.772 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 200.772 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.868 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs cross_beam_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 28.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 204.693 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.509 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.165 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 198.393 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 72.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 28.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 204.693 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.509 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.165 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 198.393 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.509 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_1 vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 81.511 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 204.693 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 28.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.509 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.165 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 198.393 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 72.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 204.693 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 28.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.509 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.165 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 198.393 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.509 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "cross_beam_2 vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 81.511 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 214.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.461 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.099 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 207.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 48.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 158.598 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 208.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 257.680 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.418 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 151.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 261.910 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 189.356 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.580 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.225 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 155.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 259.460 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.660 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 104.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_in vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 94.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs front_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.461 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.099 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 207.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 208.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 257.680 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 48.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 158.598 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 85.418 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 261.910 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 151.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 189.356 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.580 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.225 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 259.460 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 155.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.660 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 104.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_axle_out vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 94.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs front_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.800 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 91.107 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 91.107 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.221 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.221 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 4.272 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 189.356 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 189.356 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 174.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 168.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 167.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.141 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.141 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 168.328 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_bearing vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 16.070 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs front_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 38.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.274 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 38.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.274 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.580 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.580 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 168.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 6.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 26.101 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs front_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.609 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.609 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.044 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.651 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.994 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.651 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.994 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 11.449 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.225 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.225 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 167.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 160.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.875 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.875 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.323 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.845 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs front_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 201.400 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 42.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.124 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 202.502 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 255.318 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 79.041 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 155.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 259.460 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.141 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.875 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 160.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 257.220 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.002 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.432 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs front_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 202.502 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 255.318 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 42.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.124 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 79.041 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 259.460 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 155.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.141 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 183.875 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 257.220 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 160.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.002 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 92.432 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs leg_1f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.237 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.237 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.660 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 156.660 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 168.328 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.323 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.002 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.002 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 16.808 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs leg_1r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 151.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 242.695 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 73.348 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 158.598 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 257.680 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.221 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.274 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.994 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.124 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 255.318 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.237 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1f vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 83.038 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs leg_2f",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 242.695 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.067 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 48.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 208.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 38.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.651 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 42.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 202.502 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_1r vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 210.477 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs leg_2r",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 151.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 73.348 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 257.680 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 158.598 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.221 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.274 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 179.994 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 255.318 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 161.124 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 162.237 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2f vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 83.038 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs motor_mount",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 186.067 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 208.802 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 48.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 38.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.651 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 202.502 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 42.200 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.951 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "leg_2r vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 210.477 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_axle_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.518 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.518 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 182.544 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 176.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 175.539 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 191.931 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 191.931 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 176.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 11.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_mount vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_axle_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 214.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.461 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.099 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 207.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 104.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_in vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 213.506 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs rear_bearing",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.461 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.099 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 96.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 207.700 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 104.209 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_axle_out vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 213.506 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs rear_belt",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.800 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 91.107 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 91.107 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_bearing vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 197.006 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt vs rear_drive",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 6.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 191.147 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_drive vs rear_idler_in",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.609 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_drive vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 90.609 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_drive vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.044 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_drive vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_drive vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 190.006 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_in vs rear_idler_out",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 201.400 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_in vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_in vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_in vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 214.434 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_out vs rear_rail",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_out vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 97.909 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_out vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 214.434 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_rail vs shaft",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_rail vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 191.943 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "shaft vs stepper",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "travel",
+      "state": "N/A",
+      "measured": "no AXES declared, so nothing moves",
+      "limit": "n/a",
+      "source": "a static assembly is fully judged by the fit rule; declare AXES in assembly.py for a machine",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "230.0 \u00d7 191.0 mm across 4 bodies at z = 0.00 (leg_1f, leg_1r, leg_2f, leg_2r)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "4 bodies on the plane, 23 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "N/A",
+      "measured": "no bought part declares a mass_g with a mass_source, so nothing says what the assembly weighs (25 of 27 bodies have no mass)",
+      "limit": "n/a",
+      "source": "judged once a bought part declares a mass (bought.py has the contract); `stance` says the footprint has area, not that the weight is over it",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "front_drive",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "cantilevered on shaft, held over 6.2 mm (its length 5.2, diameter 22.6)",
+      "limit": "held over the lesser of its length and diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_in",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "cantilevered on front_axle_in, held over 6.2 mm (its length 5.2, diameter 22.6)",
+      "limit": "held over the lesser of its length and diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "front_idler_out",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "cantilevered on front_axle_out, held over 6.2 mm (its length 5.2, diameter 22.6)",
+      "limit": "held over the lesser of its length and diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_drive",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "cantilevered on shaft, held over 6.2 mm (its length 5.2, diameter 22.6)",
+      "limit": "held over the lesser of its length and diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_in",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "cantilevered on rear_axle_in, held over 6.2 mm (its length 5.2, diameter 22.6)",
+      "limit": "held over the lesser of its length and diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_idler_out",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "cantilevered on rear_axle_out, held over 6.2 mm (its length 5.2, diameter 22.6)",
+      "limit": "held over the lesser of its length and diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "shaft",
+      "rule": "mechanism/supported",
+      "state": "PASS",
+      "measured": "held by front_bearing, rear_bearing, their spots 181.0 mm apart along the axis (diameter 8.0)",
+      "limit": "spots apart by at least the diameter",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt",
+      "rule": "mechanism/belt",
+      "state": "PASS",
+      "measured": "runs on front_idler_in, front_idler_out, front_drive",
+      "limit": "each pulley declared turning and within 0.5 mm",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "front_belt",
+      "rule": "mechanism/tension",
+      "state": "PASS",
+      "measured": "tensioned by front_idler_in",
+      "limit": "a tensioner (an adjustable pulley or idler) named",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt",
+      "rule": "mechanism/belt",
+      "state": "PASS",
+      "measured": "runs on rear_idler_in, rear_idler_out, rear_drive",
+      "limit": "each pulley declared turning and within 0.5 mm",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_belt",
+      "rule": "mechanism/tension",
+      "state": "PASS",
+      "measured": "tensioned by rear_idler_in",
+      "limit": "a tensioner (an adjustable pulley or idler) named",
+      "source": "assembly.py MECHANISM; distances by BRep (within 0.5 mm counts as held); supports spread along the axis by at least the body's diameter (rule of thumb: one bearing spot lets a shaft wobble)",
+      "check": "mechanism",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "250.0 x 266.5 x 137.0 mm",
+      "limit": "<= 260 x 290 x 140 mm",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "front_rail|carrier",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "0.500 mm",
+      "limit": ">= 0.3 mm",
+      "source": "spec.toml [[clearance]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "rear_rail|carrier",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "0.500 mm",
+      "limit": ">= 0.3 mm",
+      "source": "spec.toml [[clearance]] #2",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "shaft|carrier",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "24.000 mm",
+      "limit": ">= 15 mm",
+      "source": "spec.toml [[clearance]] #3",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "axle",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical ISO 7379 shoulder bolt, 6 mm shoulder, head 10 x 4.5; choose length to the rail",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "bearing_608",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: 608 boundary dimensions 8 x 22 x 7 (ISO 15 dimension series 02); maker not chosen",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "coupler",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical 5-8 clamp coupler, OD 20, length 25",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "extrusion_2020",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "cad tables extrusions: 2020 (w 20, h 20, slot 6, bore 4.2); length cut to order",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "flat_belt",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical antistatic flat conveyor belt, 4 x 1.5; length from the pulley path",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "shaft",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: stock 8 mm h6 ground shaft; length to the design",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "stepper",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: NEMA 17 frame 42.3 square; length 40 and shaft 5 x 20 class-typical, motor not chosen",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    }
+  ],
+  "summary": {
+    "parts_built": 4,
+    "parts_failed": 0,
+    "checks_run": 23,
+    "rows": 409,
+    "by_state": {
+      "PASS": 392,
+      "UNCHECKED": 13,
+      "N/A": 4
+    },
+    "by_check": {
+      "geometry": {
+        "PASS": 19,
+        "UNCHECKED": 3,
+        "N/A": 1
+      },
+      "visual": {
+        "PASS": 4,
+        "UNCHECKED": 4
+      },
+      "placements": {
+        "N/A": 1
+      },
+      "fit": {
+        "PASS": 351
+      },
+      "sweep": {
+        "N/A": 1
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "com": {
+        "N/A": 1
+      },
+      "mechanism": {
+        "PASS": 11
+      },
+      "spec": {
+        "PASS": 4
+      },
+      "provenance": {
+        "UNCHECKED": 6,
+        "PASS": 1
+      }
+    },
+    "ok": false
+  },
+  "written_utc": "2026-11-26T05:54:16Z"
+}
