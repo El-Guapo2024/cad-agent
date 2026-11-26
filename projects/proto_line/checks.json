@@ -1,0 +1,881 @@
+{
+  "project": "proto_line",
+  "parts": {
+    "carrier": {
+      "state": "BUILT",
+      "doc": "The line's board carrier: one per board, carried by hand from station to station and located at each the same",
+      "params": {
+        "size_x": 170.0,
+        "size_y": 170.0,
+        "thick": 6.0,
+        "board": 150.0,
+        "board_t": 1.6,
+        "fit": 0.2,
+        "pin_hole": 4.0,
+        "pin_edge": 7.62,
+        "pin_x": 70.0,
+        "notch": 12.0,
+        "flip_hole": 3.0,
+        "flip_x": 69.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.007,
+      "bbox_mm": [
+        170.0,
+        170.0,
+        6.0
+      ],
+      "volume_cm3": 136.259,
+      "mass_g": 367.9
+    },
+    "nest": {
+      "state": "BUILT",
+      "doc": "A station's nest: the plate every station (laser, paste, LumenPnP) carries, that the carrier drops onto by hand.",
+      "params": {
+        "size_x": 200.0,
+        "front": 10.0,
+        "back": 180.0,
+        "thick": 10.0,
+        "pin": 4.0,
+        "pin_edge": 7.62,
+        "pin_x": 70.0,
+        "bolt": 5.5,
+        "cbore": 9.5,
+        "cbore_d": 5.5,
+        "bolt_x": 85.0,
+        "bolt_y": 75.0
+      },
+      "material": "aluminium",
+      "process": "cnc",
+      "build_s": 0.004,
+      "bbox_mm": [
+        200.0,
+        190.0,
+        10.0
+      ],
+      "volume_cm3": 377.762,
+      "mass_g": 1019.96
+    },
+    "stencil_frame": {
+      "state": "BUILT",
+      "doc": "The paste station's stencil frame: a printed stiffener the mylar foil is taped under, so the foil lies flat on",
+      "params": {
+        "size_x": 196.0,
+        "size_y": 176.0,
+        "y0": -3.0,
+        "thick": 4.0,
+        "window": 152.0,
+        "board_y": 85.0,
+        "pin_x": 70.0,
+        "pin_edge": 7.62,
+        "hole": 4.6
+      },
+      "material": "petg",
+      "process": "fdm",
+      "build_s": 0.002,
+      "bbox_mm": [
+        196.0,
+        176.0,
+        4.0
+      ],
+      "volume_cm3": 45.454,
+      "mass_g": 57.73
+    }
+  },
+  "renders": [
+    {
+      "part": "carrier",
+      "view": "iso",
+      "path": "out/carrier_iso.png",
+      "triangles": 1252
+    },
+    {
+      "part": "nest",
+      "view": "iso",
+      "path": "out/nest_iso.png",
+      "triangles": 2076
+    },
+    {
+      "part": "stencil_frame",
+      "view": "iso",
+      "path": "out/stencil_frame_iso.png",
+      "triangles": 328
+    },
+    {
+      "part": "assembly",
+      "view": "iso",
+      "path": "out/assembly_iso.png",
+      "triangles": 6536
+    }
+  ],
+  "rows": [
+    {
+      "subject": "carrier",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "170.0 x 170.0 x 6.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "4.3931 mm at the 1st percentile (min 0.4104, median 4.3948, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "3.8 mm between outer edge and cutout at (-80.6, 87.6), at (-83.1, 85.0)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 10 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "4 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "3 mm at (-69, 85, 2.2), the smallest of 6 holes and slots",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "136.26 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "31.03% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carrier_iso.png"
+      ]
+    },
+    {
+      "subject": "carrier",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_carrier_iso.png"
+      ]
+    },
+    {
+      "subject": "nest",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "200.0 x 190.0 x 10.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "9.9997 mm at the 1st percentile (min 4.4997, median 9.9997, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "8.4376 mm between cutout at (-89.8, 10.0) and cutout at (-72.0, 7.6), at (-76.14, 8.59)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 21 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "6 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "4 mm at (-70, 7.62, -5), the smallest of 6 holes and slots",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "377.76 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "nest",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "32.16% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_nest_iso.png"
+      ]
+    },
+    {
+      "subject": "nest",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_nest_iso.png"
+      ]
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "196.0 x 176.0 x 4.0 mm",
+      "limit": "250 x 210 x 210 mm",
+      "source": "0.4 mm nozzle, 2 perimeters; bed size assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "3.9997 mm at the 1st percentile (min 1.0489, median 3.9997, 3000 rays)",
+      "limit": "0.8 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "8.32 mm between outer edge and cutout at (76.0, 154.5), at (-70.0, 1.16)",
+      "limit": "1.2 mm",
+      "source": "closest approach over 1 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "feature count",
+      "state": "UNCHECKED",
+      "measured": "1 cutouts found",
+      "limit": "no expectation",
+      "source": "declare EXPECT_FEATURES in the part to gate this (0 for a plain part); without it a swallowed cutout goes unnoticed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "45.45 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "12.14% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_stencil_frame_iso.png"
+      ]
+    },
+    {
+      "subject": "stencil_frame",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_stencil_frame_iso.png"
+      ]
+    },
+    {
+      "subject": "proto_line",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "placements",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs carrier",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.005 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs flip_pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.010 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs flip_pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.010 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs foil",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 4.400 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.380 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.380 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.008 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs flip_pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.010 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs flip_pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.010 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs foil",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "carrier vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.125 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_left vs flip_pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 135.020 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_left vs foil",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_left vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_left vs pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 73.896 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_left vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 155.597 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_left vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.511 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_right vs foil",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_right vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_right vs pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 155.597 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_right vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 73.896 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin_right vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.511 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "foil vs nest",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 6.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "foil vs pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "foil vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "foil vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs pin_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "nest vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 6.125 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_left vs pin_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 136.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_left vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pin_right vs stencil_frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "travel",
+      "state": "N/A",
+      "measured": "no AXES declared, so nothing moves",
+      "limit": "n/a",
+      "source": "a static assembly is fully judged by the fit rule; declare AXES in assembly.py for a machine",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "200.0 \u00d7 190.0 mm across 3 bodies at z = -10.00 (nest, pin_left, pin_right)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "3 bodies on the plane, 6 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "N/A",
+      "measured": "no bought part declares a mass_g with a mass_source, so nothing says what the assembly weighs (6 of 9 bodies have no mass)",
+      "limit": "n/a",
+      "source": "judged once a bought part declares a mass (bought.py has the contract); `stance` says the footprint has area, not that the weight is over it",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "200.0 x 190.0 x 20.12 mm",
+      "limit": "<= 200 x 190 x 21 mm",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame|pin_left",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "0.300 mm",
+      "limit": ">= 0.2 mm",
+      "source": "spec.toml [[clearance]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_frame|pin_right",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "0.300 mm",
+      "limit": ">= 0.2 mm",
+      "source": "spec.toml [[clearance]] #2",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "board",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "FR4 copper clad 1.6 mm, 1 oz double-sided, 150 x 150 (cut to size)",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "dowel_pin",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: ISO 8734 dowel 4 m6 x 20 (left); a 4 mm diamond locating pin (right); any supplier",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "flip_pin",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: ISO 8734 dowel 3 m6 x 6; any supplier",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "stencil_foil",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: 0.125 mm (5 mil) mylar sheet, laser-cut in house",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    }
+  ],
+  "summary": {
+    "parts_built": 3,
+    "parts_failed": 0,
+    "checks_run": 20,
+    "rows": 71,
+    "by_state": {
+      "PASS": 59,
+      "UNCHECKED": 9,
+      "N/A": 3
+    },
+    "by_check": {
+      "geometry": {
+        "PASS": 14,
+        "UNCHECKED": 3
+      },
+      "visual": {
+        "PASS": 3,
+        "UNCHECKED": 3
+      },
+      "placements": {
+        "N/A": 1
+      },
+      "fit": {
+        "PASS": 36
+      },
+      "sweep": {
+        "N/A": 1
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "com": {
+        "N/A": 1
+      },
+      "spec": {
+        "PASS": 3
+      },
+      "provenance": {
+        "PASS": 1,
+        "UNCHECKED": 3
+      }
+    },
+    "ok": false
+  },
+  "written_utc": "2026-11-26T14:29:33Z"
+}

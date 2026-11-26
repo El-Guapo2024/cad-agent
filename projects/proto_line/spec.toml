@@ -1,0 +1,14 @@
+# The paste station's stack, as the kernel can measure it.
+
+[envelope]                   # the nest's footprint, pins to frame top
+max_mm = [200, 190, 21]
+
+[[clearance]]                # the frame only stiffens: its holes clear the pins, the foil registers
+a = "stencil_frame"
+b = "pin_left"
+min_mm = 0.2
+
+[[clearance]]
+a = "stencil_frame"
+b = "pin_right"
+min_mm = 0.2
