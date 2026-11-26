@@ -1,0 +1,50 @@
+{
+ "note": "500 g carrier at 10 m/min; step start and stop",
+ "speed_m_min": 10.0,
+ "mass_g": 500.0,
+ "mu_belt": 0.6,
+ "mu_guide": 0.3,
+ "pass": false,
+ "sim_s": 2.870000000000126,
+ "checks": {
+  "reaches stop point": {
+   "pass": true,
+   "detail": "stopped at x 152.4 mm"
+  },
+  "yaw < 1 deg": {
+   "pass": true,
+   "detail": "max |yaw| 0.000 deg"
+  },
+  "no rail climb": {
+   "pass": true,
+   "detail": "highest corner +0.07 mm over pass line, max |roll| 0.000 deg"
+  },
+  "never falls through": {
+   "pass": true,
+   "detail": "lowest corner -0.01 mm, final centre z -0.00 mm"
+  },
+  "no belt slip": {
+   "pass": true,
+   "detail": "slip -0.00 mm over 362 mm of belt travel; max |v_belt - v_board| 142.22 mm/s"
+  },
+  "start slip < 1 mm": {
+   "pass": false,
+   "detail": "+2.405 mm (belt 0 -> 10 m/min in 0 ms)"
+  },
+  "stop slip < 1 mm": {
+   "pass": false,
+   "detail": "board overran the belt by +2.250 mm (stop in 0 ms)"
+  },
+  "rail drag": {
+   "pass": true,
+   "detail": "max guide-rail normal force 0.000 N, mean 0.000 N (board weight 4.91 N)"
+  },
+  "touches only belts and rail faces": {
+   "pass": true,
+   "detail": "yes"
+  }
+ },
+ "contacts_seen": {
+  "m0 belt": 170110
+ }
+}

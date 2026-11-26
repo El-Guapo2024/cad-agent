@@ -1,0 +1,51 @@
+{
+ "note": "FR4 169x150x1.6 (75 g), 0.5 m/min",
+ "speed_m_min": 0.5,
+ "mass_g": 75.036,
+ "mu_belt": 0.6,
+ "mu_guide": 0.3,
+ "pass": true,
+ "sim_s": 75.73000000017957,
+ "checks": {
+  "reaches module 2": {
+   "pass": true,
+   "detail": "final centre x 419 mm (needs >= 394, on m2 belts only: True)"
+  },
+  "yaw < 1 deg": {
+   "pass": true,
+   "detail": "max |yaw| 0.000 deg"
+  },
+  "no rail climb": {
+   "pass": true,
+   "detail": "highest corner -0.00 mm over pass line, max |roll| 0.000 deg"
+  },
+  "never falls through": {
+   "pass": true,
+   "detail": "lowest corner -0.01 mm, final centre z -0.00 mm"
+  },
+  "transfer pitch < 1 deg": {
+   "pass": true,
+   "detail": "max |pitch| 0.002 deg over the gap, lowest corner -0.01 mm"
+  },
+  "no belt slip": {
+   "pass": true,
+   "detail": "slip +0.01 mm over 425 mm of belt travel; max |v_belt - v_board| 0.02 mm/s"
+  },
+  "start slip < 1 mm": {
+   "pass": true,
+   "detail": "+0.008 mm (belt 0 -> 0.5 m/min in 200 ms)"
+  },
+  "rail drag": {
+   "pass": true,
+   "detail": "max guide-rail normal force 0.000 N, mean 0.000 N (board weight 0.74 N)"
+  },
+  "touches only belts and rail faces": {
+   "pass": true,
+   "detail": "yes"
+  }
+ },
+ "contacts_seen": {
+  "m0 belt": 3614838,
+  "m1 belt": 712988
+ }
+}

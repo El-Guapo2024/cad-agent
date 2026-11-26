@@ -55,3 +55,7 @@ ui/ondsel/build/
 ui/libarea/build/
 # The native build of OpenCamLib for CAM Surface and Waterline (ui/opencamlib/build.sh)
 ui/opencamlib/build/
+
+# MuJoCo exports (regenerate with python -m cad_agent.sim_export)
+sim/out/
+sim/results/*.log

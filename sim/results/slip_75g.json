@@ -1,0 +1,50 @@
+{
+ "note": "75 g board; belts start and stop instantly (step)",
+ "speed_m_min": 2.0,
+ "mass_g": 75.036,
+ "mu_belt": 0.6,
+ "mu_guide": 0.3,
+ "pass": true,
+ "sim_s": 11.500000000002563,
+ "checks": {
+  "reaches stop point": {
+   "pass": true,
+   "detail": "stopped at x 150.1 mm"
+  },
+  "yaw < 1 deg": {
+   "pass": true,
+   "detail": "max |yaw| 0.000 deg"
+  },
+  "no rail climb": {
+   "pass": true,
+   "detail": "highest corner +0.00 mm over pass line, max |roll| 0.000 deg"
+  },
+  "never falls through": {
+   "pass": true,
+   "detail": "lowest corner -0.00 mm, final centre z -0.00 mm"
+  },
+  "no belt slip": {
+   "pass": true,
+   "detail": "slip +0.00 mm over 360 mm of belt travel; max |v_belt - v_board| 26.71 mm/s"
+  },
+  "start slip < 1 mm": {
+   "pass": true,
+   "detail": "+0.107 mm (belt 0 -> 2 m/min in 0 ms)"
+  },
+  "stop slip < 1 mm": {
+   "pass": true,
+   "detail": "board overran the belt by +0.050 mm (stop in 0 ms)"
+  },
+  "rail drag": {
+   "pass": true,
+   "detail": "max guide-rail normal force 0.000 N, mean 0.000 N (board weight 0.74 N)"
+  },
+  "touches only belts and rail faces": {
+   "pass": true,
+   "detail": "yes"
+  }
+ },
+ "contacts_seen": {
+  "m0 belt": 689409
+ }
+}
