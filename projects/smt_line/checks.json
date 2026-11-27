@@ -1,0 +1,361 @@
+{
+  "project": "smt_line",
+  "parts": {},
+  "renders": [
+    {
+      "part": "assembly",
+      "view": "iso",
+      "path": "out/assembly_iso.png",
+      "triangles": 1759266
+    }
+  ],
+  "rows": [
+    {
+      "subject": "smt_line",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "placements",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs board_pnp",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 635.020 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs pnp_conveyor",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 404.968 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs pnp_v4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 389.892 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs reflow_oven",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs riser",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 426.250 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_pnp vs pnp_conveyor",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_pnp vs pnp_v4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 72.600 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_pnp vs reflow_oven",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 235.020 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_pnp vs riser",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 141.666 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor vs pnp_v4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor vs reflow_oven",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 4.952 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor vs riser",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 79.015 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_v4 vs reflow_oven",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.132 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_v4 vs riser",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "reflow_oven vs riser",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 2.020 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "travel",
+      "state": "N/A",
+      "measured": "no AXES declared, so nothing moves",
+      "limit": "n/a",
+      "source": "a static assembly is fully judged by the fit rule; declare AXES in assembly.py for a machine",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "1648.0 \u00d7 702.0 mm across 2 bodies at z = 0.00 (reflow_oven, riser)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "2 bodies on the plane, 4 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "UNCHECKED",
+      "measured": "no mass for 5 of 6 bodies: board_oven (bought part 'board' declares no mass_g with a mass_source); board_pnp (bought part 'board' declares no mass_g with a mass_source); pnp_conveyor (bought part 'pnp_conveyor' declares no mass_g with a mass_source); pnp_v4 (bought part 'pnp_v4' declares no mass_g with a mass_source); riser (bought part 'riser' declares no mass_g with a mass_source)",
+      "limit": "every body's mass known",
+      "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "1700.1 x 702.05 x 498.76 mm",
+      "limit": "<= 1800 x 720 x 700 mm",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor|reflow_oven",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "4.952 mm",
+      "limit": ">= 1 mm, <= 9.5 mm",
+      "source": "spec.toml [[clearance]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_v4|reflow_oven",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "2.132 mm",
+      "limit": ">= 1 mm",
+      "source": "spec.toml [[clearance]] #2",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "riser|reflow_oven",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "2.020 mm",
+      "limit": ">= 1 mm",
+      "source": "spec.toml [[clearance]] #3",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "board",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "FR4 copper clad 1.6 mm, cut to 150 x 140",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: https://github.com/opulo-inc/lumenpnp-archive/tree/conveyor pnp/cad/assembly.FCStd (Index conveyor prototype, 2021)",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor",
+      "rule": "sha256",
+      "state": "PASS",
+      "measured": "pnp_conveyor.step hashes to abc1b02847452871..., the pin",
+      "limit": "the sha256 the part pins",
+      "source": "the file is the one that was pinned",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_v4",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "https://github.com/opulo-inc/lumenpnp src/assembly.FCStd (LumenPnP v4), read by tools/fcstd_read.py",
+      "limit": "recorded and confirmed",
+      "source": "STEP route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_v4",
+      "rule": "sha256",
+      "state": "PASS",
+      "measured": "pnp_v4.step hashes to 1ea141144f32d2f7..., the pin",
+      "limit": "the sha256 the part pins",
+      "source": "the file is the one that was pinned",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "reflow_oven",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: NeoDen IN6 user manual s2 (outline, width, max height); belt height from DigiKey 3-zone oven sheet 114991685",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "riser",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: any bench shelf or stand of this size; footprint from the LumenPnP legs (pnp_v4.step)",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    }
+  ],
+  "summary": {
+    "parts_built": 0,
+    "parts_failed": 0,
+    "checks_run": 11,
+    "rows": 31,
+    "by_state": {
+      "N/A": 2,
+      "PASS": 25,
+      "UNCHECKED": 4
+    },
+    "by_check": {
+      "placements": {
+        "N/A": 1
+      },
+      "fit": {
+        "PASS": 15
+      },
+      "sweep": {
+        "N/A": 1
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "com": {
+        "UNCHECKED": 1
+      },
+      "spec": {
+        "PASS": 4
+      },
+      "provenance": {
+        "PASS": 4,
+        "UNCHECKED": 3
+      }
+    },
+    "ok": false
+  },
+  "written_utc": "2026-11-27T02:08:25Z"
+}

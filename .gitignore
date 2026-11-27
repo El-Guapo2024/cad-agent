@@ -55,3 +55,7 @@ ui/ondsel/build/
 ui/libarea/build/
 # The native build of OpenCamLib for CAM Surface and Waterline (ui/opencamlib/build.sh)
 ui/opencamlib/build/
+
+# Borrowed whole-machine STEPs (140 MB and 15 MB), rebuilt from the open sources by
+# projects/smt_line/research/borrow.py; the sidecar .json beside each, with its hash, is kept.
+projects/smt_line/bought/*.step

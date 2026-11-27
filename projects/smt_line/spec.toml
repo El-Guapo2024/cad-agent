@@ -1,0 +1,20 @@
+# The line, as the kernel can measure it.
+
+[envelope]                   # two modules on a 1.8 m bench
+max_mm = [1800, 720, 700]
+
+[[clearance]]                # SMEMA 1.2: the board jumps at most 9.5 from the conveyor's rail ends to the oven
+a = "pnp_conveyor"
+b = "reflow_oven"
+min_mm = 1.0
+max_mm = 9.5
+
+[[clearance]]                # the oven stands clear of the pick-and-place and its stand
+a = "pnp_v4"
+b = "reflow_oven"
+min_mm = 1.0
+
+[[clearance]]
+a = "riser"
+b = "reflow_oven"
+min_mm = 1.0

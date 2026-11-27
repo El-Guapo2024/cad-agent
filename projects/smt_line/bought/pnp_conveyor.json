@@ -1,0 +1,10 @@
+{
+ "source": "https://github.com/opulo-inc/lumenpnp-archive/tree/conveyor pnp/cad/assembly.FCStd (Index conveyor prototype, 2021)",
+ "vendor": "Opulo (open hardware)",
+ "licence": "GPL-3.0",
+ "notice": "LumenPnP is (c) by Opulo. This notice must be included in any distributions of this project or derivative works.",
+ "verified": false,
+ "geometry": "exact",
+ "changes": "turned from the Index's y-up frame to z-up and moved by (20.5, 90.0, 20.1), then each corner by {'left-front': (0.0227, 0.0, 0.1198), 'right-front': (-0.5169, 0.0, 0.0106), 'left-back': (-0.0747, 0.0, 0.0933), 'right-back': (-0.3705, 0.0, 0.0067), 'middle-front': (0.0227, 0.0, 0.0526), 'middle-back': (-0.0747, 0.0, 0.0817)} to sit on the LumenPnP's own extrusions; no body changed. Unverified: a prototype Opulo never released; its parts list has a NEMA14 (not placed in the CAD) and no belt, so how it drove the board is not drawn",
+ "sha256": "abc1b0284745287157bc358ec2421557aa6a9cd9611bdc3b3b001fd0262640e3"
+}
