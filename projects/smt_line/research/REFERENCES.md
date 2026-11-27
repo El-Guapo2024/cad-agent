@@ -6,10 +6,10 @@ The rule for this project (Juan, 2026-11-26): see what everyone else made and mi
 |---|---|---|---|
 | Pick-and-place | LumenPnP v4, Opulo, `src/assembly.FCStd` at github.com/opulo-inc/lumenpnp | CERN-OHL-W v2 | `bought/pnp_v4.step`, Opulo's own geometry, read by `tools/fcstd_read.py` |
 | Its conveyor | Opulo's 2021 conveyor prototype for the Index, `conveyor` branch of github.com/opulo-inc/lumenpnp-archive | GPL-3.0 | `bought/pnp_conveyor.step`, all 32 bodies, moved only |
-| Reflow oven | NeoDen IN6 user manual s2 (outline 1020 x 507 x 350, 260 wide, 30 clear, left to right) | spec sheet | `bought/reflow_oven.py`, an envelope with its tunnel |
-| Line height | DigiKey 3-zone desktop mesh-belt oven sheet 114991685: belt 300 above the bench | spec sheet | `LINE_Z` in `assembly.py` |
+| Reflow oven | NeoDen IN6 user manual: s2 outline (1020 x 507 x 350, 260 wide, 30 clear, left to right); side profile, belt and end pockets measured off its s3.1 front photo and its entrance photo, scaled to the outline | manual and photos | `bought/reflow_oven.py` |
+| Line height | the LumenPnP on its own feet: board 141.7 above the bench | its CAD | `LINE_Z` in `assembly.py` |
 | Hand-over between modules | SMEMA 1.2 (front rail fixed, gap at most 9.5 mm, edge-carried) | standard | `spec.toml` holds the gap |
-| Stand | none needed: any shelf (NeoDen stands the IN6 on a pedestal, manual s3.3) | | `bought/riser.py`, a box |
+| Oven stand | any 75.7 block, so the IN6's belt (66 above its bottom) meets the board (NeoDen stands the IN6 on a pedestal, manual s3.3) | | `bought/riser.py`, a box |
 
 "LumenPnP is (c) by Opulo. This notice must be included in any distributions of this project or derivative works."
 The names LumenPnP and Opulo are Opulo's marks, so the parts here are called `pnp_*`.
@@ -31,8 +31,9 @@ sources, licences, what was changed and each file's sha256.
 - **Conveyor, seated:** each corner is moved 0.01 to 0.52 mm. Opulo's two CADs of the same frame differ by tenths
   of a millimetre, and each mount's channel is exactly 20.000 wide. `borrow.py` measures the faces and centres each
   mount's channel on its extrusion.
-- **Line height:** set by the oven, not the pick-and-place. An oven can't sit lower than its own belt, so the
-  pick-and-place goes on a 158 mm stand.
+- **Line height:** the LumenPnP stands on the bench as Opulo built it. Its board sits 141.7 above the bench.
+  The IN6's belt is 66 above its own bottom, so the oven goes on a 75.7 block. (v0 had used the 300 mm belt
+  height of a different oven and put the PnP on a 158 mm shelf.)
 
 ## Found by the checks in Opulo's prototype itself (not fixed; it was never finished)
 
@@ -50,9 +51,15 @@ Checked body against body inside `pnp_conveyor.step`:
 
 ## Open, before anything is built
 
-1. **IN6 belt height:** not published. Ask NeoDen, or measure one. `LINE_Z` and the stand both follow it.
-2. **Where the IN6's belt begins along its length:** taken as its end face. The gap check (4.95 mm to the
-   conveyor's nearest part, at most 9.5) holds only if that is right.
+1. **The two machines can't dock directly (the check FAILs on purpose until this is fixed):**
+   - The LumenPnP's right Y motor sticks out to x 641.8, 42 mm past the frame, at 194 to 265 above the bench.
+   - The oven's end cap reaches that height, so the oven can come no closer than that.
+   - The IN6's belt starts on an end roller about 20 mm inside its end.
+   - So the board would have to jump about 55 mm from the conveyor's rail ends to the roller, and SMEMA
+     allows 9.5. A link conveyor has to bridge it.
+   - SuperHouse publishes only loose printed parts for its conveyor, with no assembly or photo of one, so it
+     can't be copied as a whole.
+2. **IN6 belt height and pockets:** measured off photos, to about +-8 mm. Measure a real one.
 3. **LumenPnP Z reach:** the board on the conveyor sits 9.7 mm lower than on Opulo's board supports. The nozzles
    must reach it (Opulo's Z travel is to be checked).
 4. **LumenPnP Y reach:** the lane runs y 270.6 to 414.5. The rear edge is near what the head reaches (estimated

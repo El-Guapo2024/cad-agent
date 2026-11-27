@@ -6,7 +6,7 @@
       "part": "assembly",
       "view": "iso",
       "path": "out/assembly_iso.png",
-      "triangles": 1759266
+      "triangles": 1759910
     }
   ],
   "rows": [
@@ -24,7 +24,17 @@
       "subject": "board_oven vs board_pnp",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 635.020 mm",
+      "measured": "gap 665.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs oven_stand",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 66.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -34,7 +44,7 @@
       "subject": "board_oven vs pnp_conveyor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 404.968 mm",
+      "measured": "gap 434.947 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -44,7 +54,7 @@
       "subject": "board_oven vs pnp_v4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 389.892 mm",
+      "measured": "gap 418.690 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -61,10 +71,10 @@
       "artifacts": []
     },
     {
-      "subject": "board_oven vs riser",
+      "subject": "board_pnp vs oven_stand",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 426.250 mm",
+      "measured": "gap 273.095 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -94,17 +104,37 @@
       "subject": "board_pnp vs reflow_oven",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 235.020 mm",
+      "measured": "gap 265.611 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "board_pnp vs riser",
+      "subject": "oven_stand vs pnp_conveyor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 141.666 mm",
+      "measured": "gap 57.713 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "oven_stand vs pnp_v4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 33.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "oven_stand vs reflow_oven",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -124,17 +154,7 @@
       "subject": "pnp_conveyor vs reflow_oven",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 4.952 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pnp_conveyor vs riser",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 79.015 mm",
+      "measured": "gap 34.932 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -144,27 +164,7 @@
       "subject": "pnp_v4 vs reflow_oven",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 2.132 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pnp_v4 vs riser",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "reflow_oven vs riser",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 2.020 mm",
+      "measured": "gap 3.232 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -184,7 +184,7 @@
       "subject": "assembly",
       "rule": "footprint",
       "state": "PASS",
-      "measured": "1648.0 \u00d7 702.0 mm across 2 bodies at z = 0.00 (reflow_oven, riser)",
+      "measured": "1730.1 \u00d7 701.3 mm across 2 bodies at z = -0.00 (oven_stand, pnp_v4)",
       "limit": "at least 5 mm in both axes",
       "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
       "check": "stance",
@@ -204,7 +204,7 @@
       "subject": "assembly",
       "rule": "centre of mass",
       "state": "UNCHECKED",
-      "measured": "no mass for 5 of 6 bodies: board_oven (bought part 'board' declares no mass_g with a mass_source); board_pnp (bought part 'board' declares no mass_g with a mass_source); pnp_conveyor (bought part 'pnp_conveyor' declares no mass_g with a mass_source); pnp_v4 (bought part 'pnp_v4' declares no mass_g with a mass_source); riser (bought part 'riser' declares no mass_g with a mass_source)",
+      "measured": "no mass for 5 of 6 bodies: board_oven (bought part 'board' declares no mass_g with a mass_source); board_pnp (bought part 'board' declares no mass_g with a mass_source); oven_stand (bought part 'riser' declares no mass_g with a mass_source); pnp_conveyor (bought part 'pnp_conveyor' declares no mass_g with a mass_source); pnp_v4 (bought part 'pnp_v4' declares no mass_g with a mass_source)",
       "limit": "every body's mass known",
       "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
       "check": "com",
@@ -214,8 +214,8 @@
       "subject": "assembly",
       "rule": "spec/envelope",
       "state": "PASS",
-      "measured": "1700.1 x 702.05 x 498.76 mm",
-      "limit": "<= 1800 x 720 x 700 mm",
+      "measured": "1730.08 x 701.27 x 425.67 mm",
+      "limit": "<= 1750 x 720 x 520 mm",
       "source": "spec.toml",
       "check": "spec",
       "artifacts": []
@@ -223,8 +223,8 @@
     {
       "subject": "pnp_conveyor|reflow_oven",
       "rule": "spec/clearance",
-      "state": "PASS",
-      "measured": "4.952 mm",
+      "state": "FAIL",
+      "measured": "34.932 mm, too far",
       "limit": ">= 1 mm, <= 9.5 mm",
       "source": "spec.toml [[clearance]] #1",
       "check": "spec",
@@ -234,17 +234,17 @@
       "subject": "pnp_v4|reflow_oven",
       "rule": "spec/clearance",
       "state": "PASS",
-      "measured": "2.132 mm",
+      "measured": "3.232 mm",
       "limit": ">= 1 mm",
       "source": "spec.toml [[clearance]] #2",
       "check": "spec",
       "artifacts": []
     },
     {
-      "subject": "riser|reflow_oven",
+      "subject": "pnp_v4|oven_stand",
       "rule": "spec/clearance",
       "state": "PASS",
-      "measured": "2.020 mm",
+      "measured": "33.500 mm",
       "limit": ">= 1 mm",
       "source": "spec.toml [[clearance]] #3",
       "check": "spec",
@@ -304,7 +304,7 @@
       "subject": "reflow_oven",
       "rule": "source",
       "state": "UNCHECKED",
-      "measured": "declared unconfirmed: NeoDen IN6 user manual s2 (outline, width, max height); belt height from DigiKey 3-zone oven sheet 114991685",
+      "measured": "declared unconfirmed: NeoDen IN6 user manual (16 p): s2 outline 1020 x 507 x 350, 260 soldering width, 30 max height; side profile and belt measured off the s3.1 front photo and the entrance photo, scaled to that outline",
       "limit": "measured on the real part",
       "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
@@ -314,7 +314,7 @@
       "subject": "riser",
       "rule": "source",
       "state": "UNCHECKED",
-      "measured": "declared unconfirmed: any bench shelf or stand of this size; footprint from the LumenPnP legs (pnp_v4.step)",
+      "measured": "declared unconfirmed: any block or bench shelf of this size; footprint the IN6's outline (manual s2)",
       "limit": "measured on the real part",
       "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
@@ -328,8 +328,9 @@
     "rows": 31,
     "by_state": {
       "N/A": 2,
-      "PASS": 25,
-      "UNCHECKED": 4
+      "PASS": 24,
+      "UNCHECKED": 4,
+      "FAIL": 1
     },
     "by_check": {
       "placements": {
@@ -348,7 +349,8 @@
         "UNCHECKED": 1
       },
       "spec": {
-        "PASS": 4
+        "PASS": 3,
+        "FAIL": 1
       },
       "provenance": {
         "PASS": 4,
@@ -357,5 +359,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-27T02:08:25Z"
+  "written_utc": "2026-11-27T05:02:25Z"
 }
