@@ -53,6 +53,10 @@ CONV_SHIFT = (20.5, 90.0, 20.1)
 # with the clamp and servo on it, up until it rests on the higher (left) extrusion's top, which brings both ledges to
 # one height; along x a rail moves as its left mounts do, which it slides in.
 MOUNT = re.compile(r"FDM-00(2[89]|3[01])")
+# The rails are stock aluminium angle, so cutting them longer is no new design. Each runs 50 mm further at the oven
+# end, past the LumenPnP's right Y motor (which keeps the oven 3.2 clear of x 641.8), and ends in the IN6's entry
+# pocket, short of its end roller. The angle's own cross-section, taken at mid-span, is run on.
+RAIL_EXTEND = 50.0
 
 
 def bodies(path):
@@ -120,6 +124,39 @@ def fit_corners(conv, ext):
     return fix
 
 
+def lengthen(s, by):
+    """The rail run on past its +x end by `by`, as the same angle cut longer: its mid-span section, extruded on."""
+    from OCP.BRepAdaptor import BRepAdaptor_Surface
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Fuse
+    from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
+    from OCP.GeomAbs import GeomAbs_Plane
+    from OCP.TopAbs import TopAbs_FACE
+    from OCP.TopExp import TopExp_Explorer
+    from OCP.TopoDS import TopoDS
+    from OCP.gp import gp_Pnt
+    x0, y0, z0, x1, y1, z1 = bbox(s)
+    mid = (x0 + x1) / 2
+    box = BRepPrimAPI_MakeBox(gp_Pnt(mid, y0 - 1, z0 - 1), gp_Pnt(mid + 1, y1 + 1, z1 + 1)).Shape()
+    slab = BRepAlgoAPI_Common(s, box); slab.Build()
+    ends = []                                  # the slice's face at x = mid + 1: the angle's cross-section
+    e = TopExp_Explorer(slab.Shape(), TopAbs_FACE)
+    while e.More():
+        f = TopoDS.Face(e.Current()); a = BRepAdaptor_Surface(f)
+        if a.GetType() == GeomAbs_Plane and abs(abs(a.Plane().Axis().Direction().X()) - 1) < 1e-9 \
+                and abs(a.Plane().Location().X() - (mid + 1)) < 1e-6:
+            ends.append(f)
+        e.Next()
+    assert len(ends) == 1, f"the rail's mid-span section is {len(ends)} faces, not one angle"
+    face = ends[0]
+    f = gp_Trsf(); f.SetTranslation(gp_Vec(x1 - (mid + 1), 0, 0))
+    prism = BRepPrimAPI_MakePrism(face.Moved(TopLoc_Location(f)), gp_Vec(by, 0, 0)).Shape()
+    fuse = BRepAlgoAPI_Fuse(s, prism); fuse.Build()
+    out = fuse.Shape()
+    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+    u = ShapeUpgrade_UnifySameDomain(out, True, True, True); u.Build()
+    return u.Shape()
+
+
 def flat_tops(s):
     """The heights of the upward-facing flat faces of a body: the conveyor's ledges, for the board's height."""
     return [z for z, _, o in planes(s, "Z") if o > 0]
@@ -155,15 +192,17 @@ def main(lumen, archive):
         conv.append((lab, s))
     ext = {"left": frame["vslot-extrusion-20mmx20mmx600mm003"], "right": frame["vslot-extrusion-20mmx20mmx600mm001"]}
     fix = fit_corners(conv, ext)
-    conv = [move(s, fix[corner(s)]) for lab, s in conv]
+    conv = [(lab, move(s, fix[corner(s)])) for lab, s in conv]
+    conv = [lengthen(s, RAIL_EXTEND) if "8982K546" in lab else s for lab, s in conv]   # bodies only from here
     ledges = sorted({round(z, 9) for c in conv for z in flat_tops(c) if 41 < z < 43})
     print("ledge tops (z, pick-and-place frame):", ledges)
+    print("conveyor reaches x", round(max(bbox(c)[3] for c in conv), 3))
     write("pnp_conveyor", conv, {
         "source": "https://github.com/opulo-inc/lumenpnp-archive/tree/conveyor pnp/cad/assembly.FCStd (Index conveyor prototype, 2021)",
         "vendor": "Opulo (open hardware)", "licence": "GPL-3.0",
         "notice": "LumenPnP is (c) by Opulo. This notice must be included in any distributions of this project or derivative works.",
         "verified": False, "geometry": "exact",
-        "changes": f"turned from the Index's y-up frame to z-up and moved by {CONV_SHIFT}, then each corner by {({k if isinstance(k, str) else '-'.join(k): tuple(round(v, 4) for v in d) for k, d in fix.items()})} to sit on the LumenPnP's own extrusions; no body changed. Unverified: "
+        "changes": f"turned from the Index's y-up frame to z-up and moved by {CONV_SHIFT}, then each corner by {({k if isinstance(k, str) else '-'.join(k): tuple(round(v, 4) for v in d) for k, d in fix.items()})} to sit on the LumenPnP's own extrusions; the two angle rails (McMaster 8982K546, stock) cut {RAIL_EXTEND} mm longer at the +x end to reach into the oven's entry pocket; no other body changed. Unverified: "
                    "a prototype Opulo never released; its parts list has a NEMA14 (not placed in the CAD) and no belt, so how it drove the board is not drawn"})
 
 

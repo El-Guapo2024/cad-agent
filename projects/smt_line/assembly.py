@@ -4,7 +4,8 @@
 
   pnp_v4        the LumenPnP v4 (Opulo, CERN-OHL-W v2), its own CAD, read by tools/fcstd_read.py.
   pnp_conveyor  Opulo's 2021 conveyor prototype for the Index (lumenpnp-archive, `conveyor` branch, GPL-3.0),
-                every body unchanged, turned from the Index's y-up frame and clamped on the LumenPnP's lower side
+                every body unchanged but the two stock angle rails, cut 50 mm longer so they run past the
+                LumenPnP's right Y motor and into the oven's entry pocket, 3.5 short of its end roller; turned from the Index's y-up frame and clamped on the LumenPnP's lower side
                 extrusions as it was on the Index's, slid 90 mm back so its front mounts clear the control box.
                 It crosses the machine through the side windows (between the extrusions at z 40 and z 90) over
                 where the two rear staging plates were; the feeders move to the front plate.
@@ -37,7 +38,7 @@ LINE_Z = PNP_Z + LEDGE_Z                 # 141.67: board bottom above the bench
 OVEN_BELT = 66.0                         # the IN6's belt above its own bottom (bought/reflow_oven.py)
 OVEN_STAND = LINE_Z - OVEN_BELT          # 75.67
 
-RAIL_END_X = 605.52     # the front rail's far end (Index z -585, + 20.5, + 0.02 seating)
+RAIL_END_X = 655.50     # the rails' far end: Index z -585, + 20.5, + 0.02 seating, + 50 cut longer (borrow.py RAIL_EXTEND)
 SMEMA_GAP = 9.5         # SMEMA 1.2: the most a board may jump between modules
 PNP_MOTOR_X = 641.8     # the LumenPnP's right Y motor sticks out to here, 194-265 above the bench
 LANE_Y = (270.6, 414.5) # between the rails' walls
@@ -60,7 +61,7 @@ MECHANISM = {"static": {"pnp_v4": "a whole machine, its own CAD; its axes are Op
 def parts():
     b = lambda n, **o: bought_solid(SLUG, n, **o)
     up = Pos(0, 0, PNP_Z)
-    oven_x = PNP_MOTOR_X + 3.2   # the oven's end can't come closer than the PnP's motor; no link conveyor yet
+    oven_x = PNP_MOTOR_X + 3.2   # the oven's end can't come closer than the PnP's motor; the rails reach into its pocket
     return {
         "pnp_v4": up * b("pnp_v4"),
         "pnp_conveyor": up * b("pnp_conveyor"),

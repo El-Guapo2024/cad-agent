@@ -28,6 +28,7 @@ sources, licences, what was changed and each file's sha256.
   clamps on the LumenPnP's lower side extrusions. Those are the same 20x20 V-slot it clamped on in the Index.
 - **Conveyor, slid back 90 mm:** its front mounts now clear the LumenPnP's control box, which the Index didn't
   have.
+- **Conveyor rails, cut 50 mm longer:** see open item 1.
 - **Conveyor, seated:** each corner is moved 0.01 to 0.52 mm. Opulo's two CADs of the same frame differ by tenths
   of a millimetre, and each mount's channel is exactly 20.000 wide. `borrow.py` measures the faces and centres each
   mount's channel on its extrusion.
@@ -51,14 +52,14 @@ Checked body against body inside `pnp_conveyor.step`:
 
 ## Open, before anything is built
 
-1. **The two machines can't dock directly (the check FAILs on purpose until this is fixed):**
+1. **How the board crosses to the oven (fixed in v0.2):**
    - The LumenPnP's right Y motor sticks out to x 641.8, 42 mm past the frame, at 194 to 265 above the bench.
-   - The oven's end cap reaches that height, so the oven can come no closer than that.
+   - The oven's end cap reaches that height, so the oven stands 3.2 clear of the motor.
    - The IN6's belt starts on an end roller about 20 mm inside its end.
-   - So the board would have to jump about 55 mm from the conveyor's rail ends to the roller, and SMEMA
-     allows 9.5. A link conveyor has to bridge it.
-   - SuperHouse publishes only loose printed parts for its conveyor, with no assembly or photo of one, so it
-     can't be copied as a whole.
+   - So Opulo's two rails (stock McMaster 8982K546 angle) are cut 50 mm longer. They pass under the motor and
+     into the oven's entry pocket, and end 3.5 short of its roller (SMEMA allows 9.5).
+   - Still undrawn: what pushes the board along the rails. Opulo's prototype never placed its NEMA14 and has
+     no belt, and SuperHouse publishes only loose printed parts.
 2. **IN6 belt height and pockets:** measured off photos, to about +-8 mm. Measure a real one.
 3. **LumenPnP Z reach:** the board on the conveyor sits 9.7 mm lower than on Opulo's board supports. The nozzles
    must reach it (Opulo's Z travel is to be checked).

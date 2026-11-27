@@ -44,7 +44,7 @@
       "subject": "board_oven vs pnp_conveyor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 434.947 mm",
+      "measured": "gap 389.497 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -154,7 +154,7 @@
       "subject": "pnp_conveyor vs reflow_oven",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 34.932 mm",
+      "measured": "gap 3.459 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -223,8 +223,8 @@
     {
       "subject": "pnp_conveyor|reflow_oven",
       "rule": "spec/clearance",
-      "state": "FAIL",
-      "measured": "34.932 mm, too far",
+      "state": "PASS",
+      "measured": "3.459 mm",
       "limit": ">= 1 mm, <= 9.5 mm",
       "source": "spec.toml [[clearance]] #1",
       "check": "spec",
@@ -274,7 +274,7 @@
       "subject": "pnp_conveyor",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "pnp_conveyor.step hashes to abc1b02847452871..., the pin",
+      "measured": "pnp_conveyor.step hashes to 6555a2373b89e3ad..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -294,7 +294,7 @@
       "subject": "pnp_v4",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "pnp_v4.step hashes to 1ea141144f32d2f7..., the pin",
+      "measured": "pnp_v4.step hashes to 5e701dda9d3cdd01..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -328,9 +328,8 @@
     "rows": 31,
     "by_state": {
       "N/A": 2,
-      "PASS": 24,
-      "UNCHECKED": 4,
-      "FAIL": 1
+      "PASS": 25,
+      "UNCHECKED": 4
     },
     "by_check": {
       "placements": {
@@ -349,8 +348,7 @@
         "UNCHECKED": 1
       },
       "spec": {
-        "PASS": 3,
-        "FAIL": 1
+        "PASS": 4
       },
       "provenance": {
         "PASS": 4,
@@ -359,5 +357,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-27T05:02:25Z"
+  "written_utc": "2026-11-27T05:13:39Z"
 }
