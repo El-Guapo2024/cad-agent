@@ -60,6 +60,12 @@ sources, licences, what was changed and each file's sha256.
      (+-8 mm), so measure a real IN6 before cutting the guides.
    - The board is driven: each rail's N20 turns its belt, as Rapid Star does it.
 2. **IN6 belt height and pockets:** measured off photos, to about +-8 mm. Measure a real one.
+   Searched 2026-11-28 for a better oven model. None found:
+   - no open-source conveyor reflow oven (every open oven is a toaster-oven or hot-plate build);
+   - no NeoDen, Puhui/Charmhigh T-960 or GF-12HT CAD on GrabCAD, 3D Warehouse or Printables (GrabCAD blocks
+     automated search, so check it by hand);
+   - no vendor dimensioned drawing.
+   Next: ask NeoDen for a STEP or outline drawing, or measure one.
 3. **LumenPnP Z reach and head clearance:** the board on the belts sits at z 80.1 in the LumenPnP's frame,
    about 29 mm higher than on Opulo's own board supports (z 51.4). The nozzles reach it more easily. The head, the cameras and the
    hoods (1.4 above the board) must still clear each other at travel height, and the top camera refocused.
