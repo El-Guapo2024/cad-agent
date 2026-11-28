@@ -5,6 +5,6 @@
  "notice": "Rapid Star conveyor by Deltaprintr (deltaprintr.com), CC BY-NC-SA 4.0. Deltaprintr and Rapid Star are trademarks of Deltaprinter Inc.",
  "verified": false,
  "geometry": "exact",
- "changes": "fasteners and the corner brackets (for Rapid Star's own frame) left out; turned from y-up to z-up; moved, front conveyor by (313.8395, 344.1, 53.0674), back by (313.8395, 406.0, 53.0674), so the rails stand on 23.0 mm blocks on the LumenPnP's lower side extrusions, the lane is 143.9 guide to guide, and the guides end at x 655.95; the front rail's limit-switch board slid along its rail's T-slot to 1 mm inside the LumenPnP's upper left side extrusion; no body's shape changed. Unverified: how the rails fasten to the blocks and extrusions is not drawn",
- "sha256": "2e19b203d9a788083fea6e8821a29258960d9ced0587afa07078cc8e47067ba1"
+ "changes": "fasteners and the corner brackets (for Rapid Star's own frame) left out; turned from y-up to z-up; moved, front conveyor by (316.0, 344.1, 53.0674), back by (316.0, 406.0, 53.0674), so the rails stand on 23.0 mm blocks on the LumenPnP's lower side extrusions, the lane is 143.9 guide to guide, and the belts end at x 649.0; the front rail's limit-switch board slid along its rail's T-slot to 1 mm inside the LumenPnP's upper left side extrusion; the one change to a body: both guide plates cut short at x 655.95 (about 2.2 mm off the oven end), with Deltaprintr's permission, so the board's jump to the oven is within SMEMA's 9.5. Unverified: how the rails fasten to the blocks and extrusions is not drawn",
+ "sha256": "c720f4811f930f374050f01e18d34489bfa82a6ef26c28b7bc1bbb4dd70e69ec"
 }

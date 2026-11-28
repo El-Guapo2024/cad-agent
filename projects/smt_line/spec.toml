@@ -4,7 +4,7 @@
 max_mm = [1750, 720, 520]
 
 [[clearance]]                # SMEMA 1.2: at most 9.5 between modules. The nearest is the conveyor's guide ends to the
-                             # oven's end roller (1.05); the belts end 10.2 from the roller, which this does not measure
+                             # oven's end roller (1.05); the belts end 8.0 from the roller, which this does not measure
 a = "pnp_conveyor"
 b = "reflow_oven"
 min_mm = 1.0

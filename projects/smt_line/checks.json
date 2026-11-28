@@ -6,7 +6,7 @@
       "part": "assembly",
       "view": "iso",
       "path": "out/assembly_iso.png",
-      "triangles": 2673544
+      "triangles": 2673548
     }
   ],
   "rows": [
@@ -44,7 +44,7 @@
       "subject": "board_oven vs pnp_conveyor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 389.067 mm",
+      "measured": "gap 389.064 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -334,7 +334,7 @@
       "subject": "pnp_conveyor",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "pnp_conveyor.step hashes to 2e19b203d9a78808..., the pin",
+      "measured": "pnp_conveyor.step hashes to c720f4811f930f37..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -354,7 +354,7 @@
       "subject": "pnp_v4",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "pnp_v4.step hashes to 47bb27c2c8566c7a..., the pin",
+      "measured": "pnp_v4.step hashes to 87ff6db67bf56394..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -417,5 +417,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-28T00:05:41Z"
+  "written_utc": "2026-11-28T03:42:27Z"
 }

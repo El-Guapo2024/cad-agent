@@ -39,8 +39,10 @@ sources, licences, what was changed and each file's sha256.
 - **Conveyor, on blocks:** Rapid Star rests each rail end straight on its side extrusions, 640 apart, with corner
   brackets. The LumenPnP's are 600 apart. Each guide plate hangs 21.6 below its rail at 220 to 280 from the middle,
   where it carries the lower pulleys. On the LumenPnP the +x one lands on the right side extrusion. So each rail end
-  stands on a bought 23 mm block. No Rapid Star part is changed.
-- **Front limit switch, slid 7 mm:** lifted, the front rail's switch board reaches the LumenPnP's upper left side
+  stands on a bought 23 mm block.
+- **Guide plates, cut 2.2 mm short at the oven end:** the only Rapid Star part changed, with Deltaprintr's
+  permission, so the belts reach within 8.0 of the oven's roller (see open item 1).
+- **Front limit switch, slid 5 mm:** lifted, the front rail's switch board reaches the LumenPnP's upper left side
   extrusion. It bolts to the rail's T-slot, so it slides along the rail to clear it by 1 mm.
 - **Line height:** the LumenPnP stands on the bench as Opulo built it. Its board sits 180.1 above the bench.
   The IN6's belt is 66 above its own bottom, so the oven goes on a 114.1 block. (v0 had used the 300 mm belt
@@ -52,9 +54,10 @@ sources, licences, what was changed and each file's sha256.
    - The LumenPnP's right Y motor sticks out to x 641.8, 42 mm past the frame, at 194 to 265 above the bench.
      The oven's end cap reaches that height, so the oven stands 3.2 clear of the motor.
    - Rapid Star's rails are 640 long, 40 more than the LumenPnP's frame, so they reach past the motor into the
-     oven's entry pocket. Their guide plates run 9.1 past the belts. The guides end 1.05 short of the IN6's end
-     roller, which leaves the belts' end **10.2 from the roller: 0.7 over SMEMA's 9.5**. This is within the
-     roller's +-8 mm photo uncertainty. Measure a real IN6 before cutting anything.
+     oven's entry pocket. Their guide plates ran 9.1 past the belts, which kept the belts 10.2 from the IN6's end
+     roller, over SMEMA's 9.5. With Deltaprintr's permission each guide is cut 2.2 mm short at the oven end. Now the
+     belts end **8.0 from the roller** and the guides 1.05 short of it. The roller's place is photo-measured
+     (+-8 mm), so measure a real IN6 before cutting the guides.
    - The board is driven: each rail's N20 turns its belt, as Rapid Star does it.
 2. **IN6 belt height and pockets:** measured off photos, to about +-8 mm. Measure a real one.
 3. **LumenPnP Z reach and head clearance:** the board on the belts sits at z 80.1 in the LumenPnP's frame,

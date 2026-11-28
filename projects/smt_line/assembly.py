@@ -8,12 +8,13 @@
                 by an N20 gear motor, with a guide, hoods, a servo gripper and a board-stop switch (and on the
                 front rail, a stop solenoid). Moved only: the rails span the LumenPnP's lower side extrusions
                 (600 apart) on rail_blocks, the front guide where Opulo's own prototype had its front wall, the
-                back one 143.9 behind it, and the guides end 1.05 short of the oven's end roller. Opulo's 2021
+                back one 143.9 behind it, and the belts end 8.0 short of the oven's end roller. The guide plates
+                are cut 2.2 shorter at the oven end, with Deltaprintr's permission. Opulo's 2021
                 prototype was here until v0.3; it never had its drive drawn.
   rail_blocks   four bought 20 x 20 x 23 blocks, one under each rail end on a side extrusion. Rapid Star rests its
                 rails straight on its own side extrusions, 640 apart; the LumenPnP's are 600 apart, which puts the
                 guide's low lobe (it carries the lower pulleys, 21.6 below the rail) on the right one. The blocks
-                lift it 1.4 clear, so no Rapid Star part is changed.
+                lift it 1.4 clear without changing the guide.
   reflow_oven   the NeoDen IN6, its outline from its manual and its shape and belt measured off the manual's
                 photos (bought/reflow_oven.py).
   oven_stand    any block that lifts the oven so its belt meets the pick-and-place's board height.
@@ -45,8 +46,8 @@ LINE_Z = PNP_Z + BELT_Z                  # 180.08: board bottom above the bench
 OVEN_BELT = 66.0                         # the IN6's belt above its own bottom (bought/reflow_oven.py)
 OVEN_STAND = LINE_Z - OVEN_BELT          # 114.08
 
-GUIDE_END_X = 655.95    # the guides' far end (borrow.py RS_GUIDE_END_X), 1.05 short of the oven's end roller (x 657.00)
-BELT_END_X = 646.84     # the belts' far end, 9.1 inside the guides', as borrow.py prints it: 10.2 from the roller
+GUIDE_END_X = 655.95    # the guides' far end, cut short there (borrow.py RS_GUIDE_END_X): 1.05 from the oven's end roller (x 657.00)
+BELT_END_X = 649.0      # the belts' far end (borrow.py RS_BELT_END_X): 8.0 from the roller, inside SMEMA's 9.5
 SMEMA_GAP = 9.5         # SMEMA 1.2: the most a board may jump between modules
 PNP_MOTOR_X = 641.8     # the LumenPnP's right Y motor sticks out to here, 194-265 above the bench
 LANE_Y = (270.6, 414.5) # between the two guides

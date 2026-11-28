@@ -19,7 +19,8 @@
                     of the LumenPnP's lower side extrusions (see RS_LIFT), the front rail's guide on the line Opulo's
                     own conveyor prototype ran its front wall (y 270.6), the back rail 143.9 behind it for a
                     140-wide board (Rapid Star fixes its rails at one spacing, set here for our board), and along x so the
-                    guides end 1.05 mm short of the oven's end roller.
+                    belts end 8.0 short of the oven's end roller. The one body changed: each guide plate is cut
+                    about 2.2 mm short at the oven end (with Deltaprintr's permission), so it stays 1.05 clear.
 
 Opulo's notice, which the licence asks every derivative to carry: "LumenPnP is (c) by Opulo. This notice must be
 included in any distributions of this project or derivative works." Rapid Star's licence asks for credit to
@@ -59,8 +60,11 @@ RS_LANE = 143.9              # guide to guide: a 140-wide board with 3.9 to spar
 # The lift can't be more than 23.3: the front guide's -x end then meets a LumenPnP part outside its left side
 # extrusion (x -60.7..-20.7, its bottom at z 84.4). At 23.0 the guide clears both by 1.4.
 RS_LIFT = 23.0
-# The guides run 9.1 past the belts at each end. Along x, the guides end 1.05 short of the IN6's end roller (its front
-# at x 657.00 as the check measures it), which puts the belts' end 10.2 from it.
+# The guides run 9.1 past the belts at each end, and the oven can't come closer than the LumenPnP's right Y motor, so
+# drawn whole they kept the belts 10.2 from the IN6's end roller (its front at x 657.00 as the check measures it), over
+# SMEMA's 9.5. With Deltaprintr's permission each guide is cut short at the oven end (2.2 mm off a printed part): the
+# belts end 8.0 from the roller and the guides 1.05 short of it.
+RS_BELT_END_X = 649.0
 RS_GUIDE_END_X = 655.95
 # Lifted, the front rail's limit-switch board (it stands 8 above the rail, at the rail's -x end) reaches into the
 # LumenPnP's upper left side extrusion (x 0..20). It bolts to the rail's T-slot, so it slides along the rail to 1 mm
@@ -103,6 +107,16 @@ def planes(s, axis):
 
 def move(s, d):
     f = gp_Trsf(); f.SetTranslation(gp_Vec(*d)); return s.Moved(TopLoc_Location(f))
+
+
+def cut_beyond(s, x):
+    """The body with everything past x (toward +x) cut off."""
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut
+    from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
+    from OCP.gp import gp_Pnt
+    x0, y0, z0, x1, y1, z1 = bbox(s)
+    c = BRepAlgoAPI_Cut(s, BRepPrimAPI_MakeBox(gp_Pnt(x, y0 - 1, z0 - 1), gp_Pnt(x1 + 1, y1 + 1, z1 + 1)).Shape()); c.Build()
+    return c.Shape()
 
 
 def trsf(v):
@@ -160,8 +174,8 @@ def main(lumen, rs):
     top = max(max(z for z, a, _ in planes(frame[k], "Z") if a > 2000)
               for k in ("vslot-extrusion-20mmx20mmx600mm003", "vslot-extrusion-20mmx20mmx600mm001"))
     rail_bottom = min(bbox(s)[2] for side in convs.values() for lab, s in side if lab.startswith("2020-640"))
-    guide_end = max(bbox(s)[3] for side in convs.values() for lab, s in side if lab.startswith("Conveyer_Guide"))
-    dx, dz = RS_GUIDE_END_X - guide_end, top + RS_LIFT - rail_bottom
+    belt_end = max(bbox(s)[3] for side in convs.values() for lab, s in side if lab.startswith("Belt"))
+    dx, dz = RS_BELT_END_X - belt_end, top + RS_LIFT - rail_bottom
     move_by = {}
     for side, want in (("front", RS_FRONT_GUIDE_Y), ("back", RS_FRONT_GUIDE_Y + RS_LANE)):
         move_by[side] = (dx, want - guide_face(convs[side], side), dz)
@@ -173,6 +187,9 @@ def main(lumen, rs):
                 slide = UPPER_EXTRUSION_X + 1.0 - bbox(s)[0]
                 print(f"slid {lab} {slide:.3f} along its rail")
                 s = move(s, (slide, 0.0, 0.0))
+            if lab.startswith("Conveyer_Guide") and bbox(s)[3] > RS_GUIDE_END_X:
+                print(f"cut {lab} {bbox(s)[3] - RS_GUIDE_END_X:.3f} short at the oven end")
+                s = cut_beyond(s, RS_GUIDE_END_X)
             conv.append(s)
     belts = sorted({round(z, 6) for side, bs in convs.items() for lab, s in bs if lab.startswith("Belt")
                     for z in flat_tops(move(s, move_by[side]))})
@@ -186,7 +203,7 @@ def main(lumen, rs):
         "vendor": "Deltaprintr (open hardware)", "licence": "CC BY-NC-SA 4.0; used with Deltaprintr's permission (Juan, 2026-11-27)",
         "notice": "Rapid Star conveyor by Deltaprintr (deltaprintr.com), CC BY-NC-SA 4.0. Deltaprintr and Rapid Star are trademarks of Deltaprinter Inc.",
         "verified": False, "geometry": "exact",
-        "changes": f"fasteners and the corner brackets (for Rapid Star's own frame) left out; turned from y-up to z-up; moved, front conveyor by {tuple(round(v, 4) for v in move_by['front'])}, back by {tuple(round(v, 4) for v in move_by['back'])}, so the rails stand on {RS_LIFT} mm blocks on the LumenPnP's lower side extrusions, the lane is {RS_LANE} guide to guide, and the guides end at x {RS_GUIDE_END_X}; the front rail's limit-switch board slid along its rail's T-slot to 1 mm inside the LumenPnP's upper left side extrusion; no body's shape changed. Unverified: how the rails fasten to the blocks and extrusions is not drawn"})
+        "changes": f"fasteners and the corner brackets (for Rapid Star's own frame) left out; turned from y-up to z-up; moved, front conveyor by {tuple(round(v, 4) for v in move_by['front'])}, back by {tuple(round(v, 4) for v in move_by['back'])}, so the rails stand on {RS_LIFT} mm blocks on the LumenPnP's lower side extrusions, the lane is {RS_LANE} guide to guide, and the belts end at x {RS_BELT_END_X}; the front rail's limit-switch board slid along its rail's T-slot to 1 mm inside the LumenPnP's upper left side extrusion; the one change to a body: both guide plates cut short at x {RS_GUIDE_END_X} (about 2.2 mm off the oven end), with Deltaprintr's permission, so the board's jump to the oven is within SMEMA's 9.5. Unverified: how the rails fasten to the blocks and extrusions is not drawn"})
 
 
 if __name__ == "__main__":
