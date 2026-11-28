@@ -64,7 +64,22 @@ sources, licences, what was changed and each file's sha256.
    - no open-source conveyor reflow oven (every open oven is a toaster-oven or hot-plate build);
    - no NeoDen, Puhui/Charmhigh T-960 or GF-12HT CAD on GrabCAD, 3D Warehouse or Printables (GrabCAD blocks
      automated search, so check it by hand);
-   - no vendor dimensioned drawing.
+   - no vendor dimensioned drawing for the IN6.
+   A second search the same day (9 agents: model sites, open builds, vendors, patents, Chinese and Japanese sites)
+   found no oven CAD anywhere. It found one dimensioned outline drawing of a small conveyor oven:
+   - TPR Trading's 卓上リフロー炉 USTR-1210-NETIII (https://tpr-trading.co.jp/products/table-reflow/, catalog
+     https://tpr-trading.co.jp/web/wp-content/uploads/rifufo-catalog.pdf; local copy in
+     ~/work/smt-references/8-reflow/downloads-2026-11-28):
+     - L1700 x W760 x H540, about 210 kg, three-phase 200 V, 12 kW;
+     - heated box 1180 long; heating 930 x 220;
+     - an SUS mesh belt 200 wide, 100-1000 mm/min;
+     - pass line about 340 mm;
+     - 5 far-IR heaters top and bottom, 30 above and 20 below the belt;
+     - side-view zones 420 / 290 / 250 / 250 / 390;
+     - parts up to 10 above the mesh.
+   - Patent CN221676042U shows a small mesh-belt oven's layout (three conveyor sections, insulated lift gates), with
+     no dimensions.
+   - Industrial ovens' conveyor height is 900 +-20 (Suneast, JT). That height is for floor machines, not for us.
    Next: ask NeoDen for a STEP or outline drawing, or measure one.
 3. **LumenPnP Z reach and head clearance:** the board on the belts sits at z 80.1 in the LumenPnP's frame,
    about 29 mm higher than on Opulo's own board supports (z 51.4). The nozzles reach it more easily. The head, the cameras and the
