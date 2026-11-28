@@ -1,5 +1,5 @@
-"""A bare board on the line: FR4 1.6, 150 long (along the line) by 140 across, the widest that sits on both of the
-conveyor's ledges at Opulo's rail spacing (the ledges' inner edges are 121.7 apart, the rails' walls 143.9).
+"""A bare board on the line: FR4 1.6, 150 long (along the line) by 140 across. The conveyor's guides are set 143.9
+apart for it, and its edges ride the two 4 mm belts (Rapid Star carries boards up to 165 wide).
 
 Frame: its bottom at z 0, its front-left corner at x 0, y 0.
 """

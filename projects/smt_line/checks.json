@@ -6,7 +6,7 @@
       "part": "assembly",
       "view": "iso",
       "path": "out/assembly_iso.png",
-      "triangles": 1759910
+      "triangles": 2673544
     }
   ],
   "rows": [
@@ -44,7 +44,7 @@
       "subject": "board_oven vs pnp_conveyor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 389.497 mm",
+      "measured": "gap 389.067 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -54,7 +54,17 @@
       "subject": "board_oven vs pnp_v4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 418.690 mm",
+      "measured": "gap 412.199 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_oven vs rail_blocks",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 445.270 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -94,7 +104,17 @@
       "subject": "board_pnp vs pnp_v4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 72.600 mm",
+      "measured": "gap 52.063 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_pnp vs rail_blocks",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 200.818 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -114,7 +134,7 @@
       "subject": "oven_stand vs pnp_conveyor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 57.713 mm",
+      "measured": "gap 49.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -125,6 +145,16 @@
       "rule": "clearance",
       "state": "PASS",
       "measured": "gap 33.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "oven_stand vs rail_blocks",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 51.912 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -144,6 +174,16 @@
       "subject": "pnp_conveyor vs pnp_v4",
       "rule": "clearance",
       "state": "PASS",
+      "measured": "gap 1.288 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_conveyor vs rail_blocks",
+      "rule": "clearance",
+      "state": "PASS",
       "measured": "in contact (allowed)",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
@@ -154,7 +194,17 @@
       "subject": "pnp_conveyor vs reflow_oven",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 3.459 mm",
+      "measured": "gap 1.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_v4 vs rail_blocks",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.001 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -165,6 +215,16 @@
       "rule": "clearance",
       "state": "PASS",
       "measured": "gap 3.232 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "rail_blocks vs reflow_oven",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 44.932 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -194,7 +254,7 @@
       "subject": "assembly",
       "rule": "ground plane",
       "state": "PASS",
-      "measured": "2 bodies on the plane, 4 above it, none below",
+      "measured": "2 bodies on the plane, 5 above it, none below",
       "limit": "nothing below the lowest contact",
       "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
       "check": "stance",
@@ -204,7 +264,7 @@
       "subject": "assembly",
       "rule": "centre of mass",
       "state": "UNCHECKED",
-      "measured": "no mass for 5 of 6 bodies: board_oven (bought part 'board' declares no mass_g with a mass_source); board_pnp (bought part 'board' declares no mass_g with a mass_source); oven_stand (bought part 'riser' declares no mass_g with a mass_source); pnp_conveyor (bought part 'pnp_conveyor' declares no mass_g with a mass_source); pnp_v4 (bought part 'pnp_v4' declares no mass_g with a mass_source)",
+      "measured": "no mass for 6 of 7 bodies: board_oven (bought part 'board' declares no mass_g with a mass_source); board_pnp (bought part 'board' declares no mass_g with a mass_source); oven_stand (bought part 'riser' declares no mass_g with a mass_source); pnp_conveyor (bought part 'pnp_conveyor' declares no mass_g with a mass_source); pnp_v4 (bought part 'pnp_v4' declares no mass_g with a mass_source); rail_blocks (stock: assembly.py builds it itself; make it a part module with a MATERIAL or a bought part with a mass)",
       "limit": "every body's mass known",
       "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
       "check": "com",
@@ -214,7 +274,7 @@
       "subject": "assembly",
       "rule": "spec/envelope",
       "state": "PASS",
-      "measured": "1730.08 x 701.27 x 425.67 mm",
+      "measured": "1730.08 x 701.27 x 464.08 mm",
       "limit": "<= 1750 x 720 x 520 mm",
       "source": "spec.toml",
       "check": "spec",
@@ -224,7 +284,7 @@
       "subject": "pnp_conveyor|reflow_oven",
       "rule": "spec/clearance",
       "state": "PASS",
-      "measured": "3.459 mm",
+      "measured": "1.000 mm",
       "limit": ">= 1 mm, <= 9.5 mm",
       "source": "spec.toml [[clearance]] #1",
       "check": "spec",
@@ -264,7 +324,7 @@
       "subject": "pnp_conveyor",
       "rule": "source",
       "state": "UNCHECKED",
-      "measured": "declared unconfirmed: https://github.com/opulo-inc/lumenpnp-archive/tree/conveyor pnp/cad/assembly.FCStd (Index conveyor prototype, 2021)",
+      "measured": "declared unconfirmed: https://github.com/Deltaprintr/Rapid-Star Mechanics/Machine Assembly v27.step, the two Conveyer sub-assemblies",
       "limit": "measured on the real part",
       "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
@@ -274,7 +334,7 @@
       "subject": "pnp_conveyor",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "pnp_conveyor.step hashes to 6555a2373b89e3ad..., the pin",
+      "measured": "pnp_conveyor.step hashes to 2e19b203d9a78808..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -294,7 +354,7 @@
       "subject": "pnp_v4",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "pnp_v4.step hashes to 5e701dda9d3cdd01..., the pin",
+      "measured": "pnp_v4.step hashes to 47bb27c2c8566c7a..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -325,10 +385,10 @@
     "parts_built": 0,
     "parts_failed": 0,
     "checks_run": 11,
-    "rows": 31,
+    "rows": 37,
     "by_state": {
       "N/A": 2,
-      "PASS": 25,
+      "PASS": 31,
       "UNCHECKED": 4
     },
     "by_check": {
@@ -336,7 +396,7 @@
         "N/A": 1
       },
       "fit": {
-        "PASS": 15
+        "PASS": 21
       },
       "sweep": {
         "N/A": 1
@@ -357,5 +417,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-27T05:13:39Z"
+  "written_utc": "2026-11-28T00:05:41Z"
 }

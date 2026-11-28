@@ -1,6 +1,6 @@
 """Bring the two borrowed designs into projects/smt_line/bought/ as STEP files, from the open sources themselves.
 
-    .venv/bin/python -I projects/smt_line/research/borrow.py <lumenpnp clone> <lumenpnp-archive conveyor-branch clone>
+    .venv/bin/python -I projects/smt_line/research/borrow.py <lumenpnp clone> <Rapid-Star clone>
 
   pnp_v4.step       the LumenPnP v4 (Opulo, CERN-OHL-W v2), src/assembly.FCStd at github.com/opulo-inc/lumenpnp,
                     in its own frame (x across, y front to back, z up; the lower side extrusions' tops at z 40).
@@ -8,16 +8,22 @@
                     belts, cable clips and tubes (no bearing on the fit, and 400 MB with them); the strip feeders
                     and the board holder (the conveyor takes their place); the two rear staging plates (the
                     conveyor's rollers and rails pass where they were).
-  pnp_conveyor.step the conveyor prototype from the `conveyor` branch of github.com/opulo-inc/lumenpnp-archive
-                    (Opulo, 2021, GPL-3.0), drawn for the Index (LumenPnP's predecessor, y up), every body of it:
-                    aluminium-angle rails (McMaster 8982K546), 608ZZ end rollers, the four frame mounts, SG90 clamp
-                    servos with their cams, clamps and guides, the width knobs. Moved, not changed: turned from the
-                    Index's y-up frame into the LumenPnP's z-up one (rails along x), its mounts on the same 20x20
-                    lower side extrusions they were drawn for, and slid 90 mm back along them so the front mounts
-                    clear the LumenPnP's control box (the Index had none there).
+  pnp_conveyor.step the PCB conveyor of Deltaprintr's Rapid Star (github.com/Deltaprintr/Rapid-Star, Mechanics/
+                    Machine Assembly v27.step; CC BY-NC-SA 4.0, used with Deltaprintr's permission, which Juan got
+                    on 2026-11-27): its two `Conveyer` sub-assemblies, every body but the fasteners and the corner
+                    brackets (those bolt to Rapid Star's own frame). Each is a 2020 rail, 640 long, carrying a 4 mm
+                    flat belt on five 13 mm pulleys, driven by an N20 gear motor at one end; a guide plate, two
+                    hoods, a servo-lifted gripper bar that clamps the board up against the hoods, a limit-switch
+                    board, and on one rail the board-stop solenoid. Moved, not changed: turned from Rapid Star's
+                    y-up frame to z-up with the rails along x, the rails standing on 23 mm blocks across the tops
+                    of the LumenPnP's lower side extrusions (see RS_LIFT), the front rail's guide on the line Opulo's
+                    own conveyor prototype ran its front wall (y 270.6), the back rail 143.9 behind it for a
+                    140-wide board (Rapid Star fixes its rails at one spacing, set here for our board), and along x so the
+                    guides end 1.05 mm short of the oven's end roller.
 
 Opulo's notice, which the licence asks every derivative to carry: "LumenPnP is (c) by Opulo. This notice must be
-included in any distributions of this project or derivative works." The names LumenPnP and Opulo are Opulo's marks,
+included in any distributions of this project or derivative works." Rapid Star's licence asks for credit to
+Deltaprintr and the same licence on adaptations. LumenPnP, Opulo, Deltaprintr and Rapid Star are their owners' marks,
 so the parts are called pnp_* here and the credit is in the sidecars.
 """
 import hashlib
@@ -41,22 +47,25 @@ DROP = re.compile(r"screw|nut|washer|bhcs|shcs|clip|belt|tube|tee|union|cable|st
                   r"^Body0(0[89]|1\d|20)$|^Body001$|mobo", re.I)
 # Body008/009: the rear staging plates. Body001, Body010..020: the board holder's clamps and slats.
 
-# The Index's frame into the LumenPnP's: x' = -z + 20.5, y' = -x + 90, z' = y + 20.1. A proper turn (det +1).
-# 20.5 and 20.1 put the Index's lower side extrusion (x 0..20 along its z, top at y 19.9) on the LumenPnP's
-# (x 0..20, top at z 40); 90 is the slide back along it.
-CONV_SHIFT = (20.5, 90.0, 20.1)
-# Then each corner onto the LumenPnP's own extrusions. Opulo's two CADs of the same frame differ by tenths (the
-# Index's lower side extrusions map to x 0..20 and 580.5..600.5; the LumenPnP's sit at x -0.0637..19.9363 and
-# 580.0685..600.0685, their tops at z 40.0674 and 40.0043), while each mount's channel is exactly the extrusion's
-# 20.000. So `fit_corners` measures the faces and moves each corner (its mount, rollers, washers, knob) to centre the
-# mount's channel on its extrusion with the channel's ceiling on the extrusion's top (0.02 to 0.52 mm), and each rail,
-# with the clamp and servo on it, up until it rests on the higher (left) extrusion's top, which brings both ledges to
-# one height; along x a rail moves as its left mounts do, which it slides in.
-MOUNT = re.compile(r"FDM-00(2[89]|3[01])")
-# The rails are stock aluminium angle, so cutting them longer is no new design. Each runs 50 mm further at the oven
-# end, past the LumenPnP's right Y motor (which keeps the oven 3.2 clear of x 641.8), and ends in the IN6's entry
-# pocket, short of its end roller. The angle's own cross-section, taken at mid-span, is run on.
-RAIL_EXTEND = 50.0
+RS_DROP = re.compile(r"screw|nut|washer|standoff|corner_bracket", re.I)
+# Rapid Star is drawn y-up: x' = x, y' = -z, z' = y.
+RS_UP = (1, 0, 0, 0,  0, 0, -1, 0,  0, 1, 0, 0)
+RS_FRONT_GUIDE_Y = 270.6     # where Opulo's prototype had its front wall: clear of the LumenPnP's control box
+RS_LANE = 143.9              # guide to guide: a 140-wide board with 3.9 to spare, as Opulo's prototype had it
+# Rapid Star's frame is 640 wide and the LumenPnP's 600. Each guide plate hangs 21.6 below its rail at x 220..280 from
+# the rail's middle, to carry the lower pulleys, which on Rapid Star is inside its side extrusions; on the LumenPnP the
+# +x one lands on the right side extrusion. So each rail end stands on a bought 23 mm block (assembly.py `rail_blocks`),
+# which lifts the guides 1.4 clear of the extrusions' tops, and no part of Rapid Star's is changed.
+# The lift can't be more than 23.3: the front guide's -x end then meets a LumenPnP part outside its left side
+# extrusion (x -60.7..-20.7, its bottom at z 84.4). At 23.0 the guide clears both by 1.4.
+RS_LIFT = 23.0
+# The guides run 9.1 past the belts at each end. Along x, the guides end 1.05 short of the IN6's end roller (its front
+# at x 657.00 as the check measures it), which puts the belts' end 10.2 from it.
+RS_GUIDE_END_X = 655.95
+# Lifted, the front rail's limit-switch board (it stands 8 above the rail, at the rail's -x end) reaches into the
+# LumenPnP's upper left side extrusion (x 0..20). It bolts to the rail's T-slot, so it slides along the rail to 1 mm
+# inside the extrusion's inner face. The back rail's switch is at the +x end, outside the frame, 3.9 clear.
+UPPER_EXTRUSION_X = 20.0     # the upper left side extrusion's inner face (pnp_v4)
 
 
 def bodies(path):
@@ -69,13 +78,6 @@ def bodies(path):
             if s is None or s.IsNull():
                 continue
             yield d.label(n), world(d, n, s)
-
-
-def corner(s):
-    """Which end of the conveyor a body is at ("middle": the rails, and the clamps at mid-span), and which side."""
-    x0, y0, _, x1, y1, _ = bbox(s)
-    end = "middle" if x1 - x0 > 300 or 100 < (x0 + x1) / 2 < 500 else ("left" if x1 < 300 else "right")
-    return end, ("front" if (y0 + y1) / 2 < 342.5 else "back")
 
 
 def planes(s, axis):
@@ -103,58 +105,31 @@ def move(s, d):
     f = gp_Trsf(); f.SetTranslation(gp_Vec(*d)); return s.Moved(TopLoc_Location(f))
 
 
-def fit_corners(conv, ext):
-    """The move for each corner and each rail that seats it on the extrusions, from their faces."""
-    side = {k: (min(x for x, a, _ in planes(e, "X") if a > 2000), max(z for z, a, _ in planes(e, "Z") if a > 2000))
-            for k, e in ext.items()}                       # each extrusion's low x face and its top
-    fix = {}
-    for lab, s in conv:
-        if MOUNT.match(lab):
-            end, _ = c = corner(s)
-            x_lo, top = side[end]
-            chan = min((x for x, a, o in planes(s, "X") if o > 0), key=lambda x: abs(x - x_lo))  # faces +x: the channel's low wall
-            ceil = min((z for z, a, o in planes(s, "Z") if o < 0), key=lambda z: abs(z - top))   # faces down: on the top
-            assert abs(chan - x_lo) < 1 and abs(ceil - top) < 1, (lab, chan, ceil)
-            fix[c] = (x_lo - chan, 0.0, top - ceil)
-    for lab, s in conv:
-        if "8982K546" in lab:
-            _, sd = c = corner(s)
-            bottom = min(z for z, a, o in planes(s, "Z") if o < 0)
-            fix[c] = (fix[("left", sd)][0], 0.0, max(t for _, t in side.values()) - bottom)
-    return fix
+def trsf(v):
+    t = gp_Trsf(); t.SetValues(*v); return t
 
 
-def lengthen(s, by):
-    """The rail run on past its +x end by `by`, as the same angle cut longer: its mid-span section, extruded on."""
-    from OCP.BRepAdaptor import BRepAdaptor_Surface
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Fuse
-    from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
-    from OCP.GeomAbs import GeomAbs_Plane
-    from OCP.TopAbs import TopAbs_FACE
-    from OCP.TopExp import TopExp_Explorer
-    from OCP.TopoDS import TopoDS
-    from OCP.gp import gp_Pnt
-    x0, y0, z0, x1, y1, z1 = bbox(s)
-    mid = (x0 + x1) / 2
-    box = BRepPrimAPI_MakeBox(gp_Pnt(mid, y0 - 1, z0 - 1), gp_Pnt(mid + 1, y1 + 1, z1 + 1)).Shape()
-    slab = BRepAlgoAPI_Common(s, box); slab.Build()
-    ends = []                                  # the slice's face at x = mid + 1: the angle's cross-section
-    e = TopExp_Explorer(slab.Shape(), TopAbs_FACE)
-    while e.More():
-        f = TopoDS.Face(e.Current()); a = BRepAdaptor_Surface(f)
-        if a.GetType() == GeomAbs_Plane and abs(abs(a.Plane().Axis().Direction().X()) - 1) < 1e-9 \
-                and abs(a.Plane().Location().X() - (mid + 1)) < 1e-6:
-            ends.append(f)
-        e.Next()
-    assert len(ends) == 1, f"the rail's mid-span section is {len(ends)} faces, not one angle"
-    face = ends[0]
-    f = gp_Trsf(); f.SetTranslation(gp_Vec(x1 - (mid + 1), 0, 0))
-    prism = BRepPrimAPI_MakePrism(face.Moved(TopLoc_Location(f)), gp_Vec(by, 0, 0)).Shape()
-    fuse = BRepAlgoAPI_Fuse(s, prism); fuse.Build()
-    out = fuse.Shape()
-    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-    u = ShapeUpgrade_UnifySameDomain(out, True, True, True); u.Build()
-    return u.Shape()
+def rapid_star(path):
+    """Each Rapid Star conveyor's bodies, in z-up Rapid Star coordinates, and which side it is ('front'/'back')."""
+    from build123d import import_step
+    a = import_step(str(path))
+    convs = [c for c in a.children if re.match(r"Conveyer_v\d+", c.label)]
+    assert len(convs) == 2, [c.label for c in a.children]
+    up = trsf(RS_UP)
+    out = {}
+    for c in convs:
+        m = up.Multiplied(c.location.wrapped.Transformation())
+        bodies_ = [(k.label, k.wrapped.Moved(TopLoc_Location(m))) for k in c.children if not RS_DROP.search(k.label)]
+        rail = next(s for lab, s in bodies_ if lab.startswith("2020-640"))
+        out["front" if (bbox(rail)[1] + bbox(rail)[4]) / 2 < 0 else "back"] = bodies_
+    return out
+
+
+def guide_face(bodies_, side):
+    """The guide plate's face the board's edge runs against: the inner (lane) side of the guide."""
+    g = next(s for lab, s in bodies_ if lab.startswith("Conveyer_Guide"))
+    ys = [(y, a) for y, a, o in planes(g, "Y") if a > 5000 and (o > 0) == (side == "front")]
+    return max(ys, key=lambda t: t[1])[0]
 
 
 def flat_tops(s):
@@ -170,7 +145,7 @@ def write(name, shapes, sidecar):
     print(f"wrote {p.name}: {len(shapes)} bodies, {p.stat().st_size / 1e6:.1f} MB")
 
 
-def main(lumen, archive):
+def main(lumen, rs):
     pnp = [(lab, s) for lab, s in bodies(Path(lumen) / "src" / "assembly.FCStd") if not DROP.search(lab)]
     keep = [s for _, s in pnp]
     frame = dict(pnp)
@@ -181,29 +156,37 @@ def main(lumen, archive):
         "verified": True, "geometry": "exact",
         "changes": "fasteners, belts, cables, strip feeders, board holder, the motherboard (inside the control box) and the two rear staging plates left out"})
 
-    t = gp_Trsf()
-    tx, ty, tz = CONV_SHIFT
-    t.SetValues(0, 0, -1, tx,  -1, 0, 0, ty,  0, 1, 0, tz)
+    convs = rapid_star(Path(rs) / "Mechanics" / "Machine Assembly v27.step")
+    top = max(max(z for z, a, _ in planes(frame[k], "Z") if a > 2000)
+              for k in ("vslot-extrusion-20mmx20mmx600mm003", "vslot-extrusion-20mmx20mmx600mm001"))
+    rail_bottom = min(bbox(s)[2] for side in convs.values() for lab, s in side if lab.startswith("2020-640"))
+    guide_end = max(bbox(s)[3] for side in convs.values() for lab, s in side if lab.startswith("Conveyer_Guide"))
+    dx, dz = RS_GUIDE_END_X - guide_end, top + RS_LIFT - rail_bottom
+    move_by = {}
+    for side, want in (("front", RS_FRONT_GUIDE_Y), ("back", RS_FRONT_GUIDE_Y + RS_LANE)):
+        move_by[side] = (dx, want - guide_face(convs[side], side), dz)
     conv = []
-    for lab, s in bodies(Path(archive) / "pnp" / "cad" / "assembly.FCStd"):
-        if not re.match(r"(FDM-00(2[89]|3[0-6])|OTS-000[4-8])", lab):
-            continue
-        s = s.Moved(TopLoc_Location(t))
-        conv.append((lab, s))
-    ext = {"left": frame["vslot-extrusion-20mmx20mmx600mm003"], "right": frame["vslot-extrusion-20mmx20mmx600mm001"]}
-    fix = fit_corners(conv, ext)
-    conv = [(lab, move(s, fix[corner(s)])) for lab, s in conv]
-    conv = [lengthen(s, RAIL_EXTEND) if "8982K546" in lab else s for lab, s in conv]   # bodies only from here
-    ledges = sorted({round(z, 9) for c in conv for z in flat_tops(c) if 41 < z < 43})
-    print("ledge tops (z, pick-and-place frame):", ledges)
+    for side, bs in convs.items():
+        for lab, s in bs:
+            s = move(s, move_by[side])
+            if lab.startswith("Conveyor_Limit_Switch") and bbox(s)[0] < UPPER_EXTRUSION_X + 1.0:
+                slide = UPPER_EXTRUSION_X + 1.0 - bbox(s)[0]
+                print(f"slid {lab} {slide:.3f} along its rail")
+                s = move(s, (slide, 0.0, 0.0))
+            conv.append(s)
+    belts = sorted({round(z, 6) for side, bs in convs.items() for lab, s in bs if lab.startswith("Belt")
+                    for z in flat_tops(move(s, move_by[side]))})
+    print("belt tops (z, pick-and-place frame):", belts)
+    print("rails span x", [tuple(round(v, 3) for v in (bbox(move(s, move_by[sd]))[0], bbox(move(s, move_by[sd]))[3]))
+                           for sd, bs in convs.items() for lab, s in bs if lab.startswith("2020-640")])
     print("conveyor reaches x", round(max(bbox(c)[3] for c in conv), 3))
+    print("belts end at x", round(max(bbox(move(s, move_by[sd]))[3] for sd, bs in convs.items() for lab, s in bs if lab.startswith("Belt")), 3))
     write("pnp_conveyor", conv, {
-        "source": "https://github.com/opulo-inc/lumenpnp-archive/tree/conveyor pnp/cad/assembly.FCStd (Index conveyor prototype, 2021)",
-        "vendor": "Opulo (open hardware)", "licence": "GPL-3.0",
-        "notice": "LumenPnP is (c) by Opulo. This notice must be included in any distributions of this project or derivative works.",
+        "source": "https://github.com/Deltaprintr/Rapid-Star Mechanics/Machine Assembly v27.step, the two Conveyer sub-assemblies",
+        "vendor": "Deltaprintr (open hardware)", "licence": "CC BY-NC-SA 4.0; used with Deltaprintr's permission (Juan, 2026-11-27)",
+        "notice": "Rapid Star conveyor by Deltaprintr (deltaprintr.com), CC BY-NC-SA 4.0. Deltaprintr and Rapid Star are trademarks of Deltaprinter Inc.",
         "verified": False, "geometry": "exact",
-        "changes": f"turned from the Index's y-up frame to z-up and moved by {CONV_SHIFT}, then each corner by {({k if isinstance(k, str) else '-'.join(k): tuple(round(v, 4) for v in d) for k, d in fix.items()})} to sit on the LumenPnP's own extrusions; the two angle rails (McMaster 8982K546, stock) cut {RAIL_EXTEND} mm longer at the +x end to reach into the oven's entry pocket; no other body changed. Unverified: "
-                   "a prototype Opulo never released; its parts list has a NEMA14 (not placed in the CAD) and no belt, so how it drove the board is not drawn"})
+        "changes": f"fasteners and the corner brackets (for Rapid Star's own frame) left out; turned from y-up to z-up; moved, front conveyor by {tuple(round(v, 4) for v in move_by['front'])}, back by {tuple(round(v, 4) for v in move_by['back'])}, so the rails stand on {RS_LIFT} mm blocks on the LumenPnP's lower side extrusions, the lane is {RS_LANE} guide to guide, and the guides end at x {RS_GUIDE_END_X}; the front rail's limit-switch board slid along its rail's T-slot to 1 mm inside the LumenPnP's upper left side extrusion; no body's shape changed. Unverified: how the rails fasten to the blocks and extrusions is not drawn"})
 
 
 if __name__ == "__main__":

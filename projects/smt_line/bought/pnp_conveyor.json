@@ -1,10 +1,10 @@
 {
- "source": "https://github.com/opulo-inc/lumenpnp-archive/tree/conveyor pnp/cad/assembly.FCStd (Index conveyor prototype, 2021)",
- "vendor": "Opulo (open hardware)",
- "licence": "GPL-3.0",
- "notice": "LumenPnP is (c) by Opulo. This notice must be included in any distributions of this project or derivative works.",
+ "source": "https://github.com/Deltaprintr/Rapid-Star Mechanics/Machine Assembly v27.step, the two Conveyer sub-assemblies",
+ "vendor": "Deltaprintr (open hardware)",
+ "licence": "CC BY-NC-SA 4.0; used with Deltaprintr's permission (Juan, 2026-11-27)",
+ "notice": "Rapid Star conveyor by Deltaprintr (deltaprintr.com), CC BY-NC-SA 4.0. Deltaprintr and Rapid Star are trademarks of Deltaprinter Inc.",
  "verified": false,
  "geometry": "exact",
- "changes": "turned from the Index's y-up frame to z-up and moved by (20.5, 90.0, 20.1), then each corner by {'left-front': (0.0227, 0.0, 0.1198), 'right-front': (-0.5169, 0.0, 0.0106), 'left-back': (-0.0747, 0.0, 0.0933), 'right-back': (-0.3705, 0.0, 0.0067), 'middle-front': (0.0227, 0.0, 0.0526), 'middle-back': (-0.0747, 0.0, 0.0817)} to sit on the LumenPnP's own extrusions; the two angle rails (McMaster 8982K546, stock) cut 50.0 mm longer at the +x end to reach into the oven's entry pocket; no other body changed. Unverified: a prototype Opulo never released; its parts list has a NEMA14 (not placed in the CAD) and no belt, so how it drove the board is not drawn",
- "sha256": "6555a2373b89e3ad67b02ce69fcd1a9cdb9b169afe8bbe6e894281b0cf4ff550"
+ "changes": "fasteners and the corner brackets (for Rapid Star's own frame) left out; turned from y-up to z-up; moved, front conveyor by (313.8395, 344.1, 53.0674), back by (313.8395, 406.0, 53.0674), so the rails stand on 23.0 mm blocks on the LumenPnP's lower side extrusions, the lane is 143.9 guide to guide, and the guides end at x 655.95; the front rail's limit-switch board slid along its rail's T-slot to 1 mm inside the LumenPnP's upper left side extrusion; no body's shape changed. Unverified: how the rails fasten to the blocks and extrusions is not drawn",
+ "sha256": "2e19b203d9a788083fea6e8821a29258960d9ced0587afa07078cc8e47067ba1"
 }
